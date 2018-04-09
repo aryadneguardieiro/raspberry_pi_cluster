@@ -1,4 +1,3 @@
-
 create_task1()
 {
 	hostname=$1
@@ -29,7 +28,9 @@ create_task1()
 
 create_task2() {
 	echo '#!/bin/bash
-
+	
+		echo "LOG: started task2.sh"
+		
 		# Install Docker
 		curl -sSL get.docker.com | sh && \
 		  sudo usermod pi -aG docker
@@ -45,10 +46,10 @@ create_task2() {
 		echo $orig | sudo tee /boot/cmdline.txt
 
 		# Add repo list and install kubeadm
-		curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
-		  echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list && \
-		  apt-get update -q && \
-		  apt-get install -qy kubeadm && \
+		curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - ;
+		  echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list ;
+		  sudo apt-get update -q ;
+		  sudo apt-get install -qy kubeadm;
 		  echo "LOG: just run task2"' > /home/pi/tasks/task2.sh;
 
 	chmod +x /home/pi/tasks/task2.sh;
@@ -73,7 +74,8 @@ main_make_pi()
 {
 
 	if [ "$(ls /home/pi | grep tasks)" = "" ]; then
-		(crontab -l 2>/dev/null; echo "@reboot /home/pi/makepi.sh") | crontab -;
+		crontab -r;
+		(crontab -l 2>/dev/null; echo "@reboot sleep 40 && /home/pi/makepi.sh") | crontab -;
 		set_ufu_proxy;
 		mkdir /home/pi/tasks;
 		create_task1 $1 $2 $3;
@@ -93,8 +95,8 @@ main_make_pi()
 			rm -f /home/pi/tasks/$script_to_run;
 		fi;
 	fi;
-	echo "LOG: rebootting in a minute" >> /home/pi/log.txt;
-	reboot;
 }
 
 main_make_pi $1 $2 $3
+echo "LOG: rebootting now" >> /home/pi/log.txt;
+sudo shutdown -r now >> /home/pi/log.txt;
