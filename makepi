@@ -1,52 +1,47 @@
-create_task1()
+task1()
 {
 	hostname=$1
 	ip=$2 # should be of format: 192.168.1.100
 	dns=$3 # should be of format: 192.168.1.1
-	echo "#!/bin/sh
-	
-		# Change the hostname
-		sudo sed -i s/raspberrypi/$hostname/g /etc/hosts
-		sudo hostnamectl --transient set-hostname $hostname
-		sudo hostnamectl --static set-hostname $hostname
-		sudo hostnamectl --pretty set-hostname $hostname
+
+	# Change the hostname
+	sudo sed -i s/raspberrypi/$hostname/g /etc/hosts
+	sudo hostnamectl --transient set-hostname $hostname
+	sudo hostnamectl --static set-hostname $hostname
+	sudo hostnamectl --pretty set-hostname $hostname
 
 
-		# Set the static ip
+	# Set the static ip
 
-		sudo cat <<EOT >> /etc/dhcpcd.conf
-		interface eth0
-		static ip_address=$ip/24
-		static routers=$dns
-		static domain_name_servers=$dns
-		EOT" > task1.sh
-
-	chmod +x task1.sh
+	sudo cat <<EOT >> /etc/dhcpcd.conf
+	interface eth0
+	static ip_address=$ip/24
+	static routers=$dns
+	static domain_name_servers=$dns
+	EOT
 }
 
-create_task2() {
-	echo '#!/bin/sh
+task2() {
+	# Install Docker
+	curl -sSL get.docker.com | sh && \
+	  sudo usermod pi -aG docker
 
-		# Install Docker
-		curl -sSL get.docker.com | sh && \
-		  sudo usermod pi -aG docker
+	# Disable Swap
+	sudo dphys-swapfile swapoff && \
+	  sudo dphys-swapfile uninstall && \
+	  sudo update-rc.d dphys-swapfile remove
+	echo Adding " cgroup_enable=cpuset cgroup_enable=memory" to /boot/cmdline.txt
+	sudo cp /boot/cmdline.txt /boot/cmdline_backup.txt
+	
+	# if you encounter problems, try changing cgroup_memory=1 to cgroup_enable=memory.
+	orig="$(head -n1 /boot/cmdline.txt) cgroup_enable=cpuset cgroup_memory=1"
+	echo $orig | sudo tee /boot/cmdline.txt
 
-		# Disable Swap
-		sudo dphys-swapfile swapoff && \
-		  sudo dphys-swapfile uninstall && \
-		  sudo update-rc.d dphys-swapfile remove
-		echo Adding " cgroup_enable=cpuset cgroup_enable=memory" to /boot/cmdline.txt
-		sudo cp /boot/cmdline.txt /boot/cmdline_backup.txt
-		# if you encounter problems, try changing cgroup_memory=1 to cgroup_enable=memory.
-		orig="$(head -n1 /boot/cmdline.txt) cgroup_enable=cpuset cgroup_memory=1"
-		echo $orig | sudo tee /boot/cmdline.txt
-
-		# Add repo list and install kubeadm
-		curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
-		  echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list && \
-		  sudo apt-get update -q && \
-		  sudo apt-get install -qy kubeadm'	> task2.sh
-	chmod +x task2.sh
+	# Add repo list and install kubeadm
+	curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
+	  echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list && \
+	  sudo apt-get update -q && \
+	  sudo apt-get install -qy kubeadm
 }
 
 set_ufu_proxy()
@@ -66,27 +61,12 @@ set_ufu_proxy()
 
 main_make_pi() 
 {
-
-	if [ "$(ls /home/pi | grep tasks)" = "" ]; then
-		(crontab -l 2>/dev/null; echo "@reboot /home/pi/makepi.sh") | crontab -
-		set_ufu_proxy
-		mkdir /home/pi/tasks
-		cd /home/pi/tasks/
-		create_task1 $1 $2 $3
-		create_task2
-	else
-		cd /home/pi/tasks/
-		script_to_run=$(echo "$(ls | sort) " | cut -d ' ' -f 1)
-		if [ "$script_to_run" = "" ]; then
-			cd /home/pi
-			rm -rf tasks
-			crontab -r
-		else 
-			./$script_to_run
-			rm -f /home/pi/tasks/$script_to_run
-		fi;
-	fi;
-	reboot
+	set_ufu_proxy
+	sudo service network-manager restart
+	task1 $1 $2 $3
+	sudo service network-manager restart
+	task2
+	#reboot
 }
 
 main_make_pi $1 $2 $3
