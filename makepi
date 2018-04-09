@@ -3,8 +3,9 @@ create_task1()
 	hostname=$1
 	ip=$2 # should be of format: 192.168.1.100
 	dns=$3 # should be of format: 192.168.1.1
-	echo "#!/bin/sh
 	
+	echo "#!/bin/sh
+
 		# Change the hostname
 		sudo sed -i s/raspberrypi/$hostname/g /etc/hosts
 		sudo hostnamectl --transient set-hostname $hostname
@@ -19,9 +20,9 @@ create_task1()
 		static ip_address=$ip/24
 		static routers=$dns
 		static domain_name_servers=$dns
-		EOT" > task1.sh
+		EOT" > /home/pi/tasks/task1.sh
 
-	chmod +x task1.sh
+	chmod +x /home/pi/tasks/task1.sh
 }
 
 create_task2() {
@@ -45,44 +46,48 @@ create_task2() {
 		curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
 		  echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list && \
 		  sudo apt-get update -q && \
-		  sudo apt-get install -qy kubeadm'	> task2.sh
-	chmod +x task2.sh
+		  sudo apt-get install -qy kubeadm
+
+		  echo "LOG: just run task2"' > /home/pi/tasks/task2.sh
+	chmod +x /home/pi/tasks/task2.sh
 }
 
 set_ufu_proxy()
 {
 	if [ "$( grep 'proxy.ufu.br' /etc/profile )" = "" ]; then
 		echo '
-			export https_proxy="http://proxy.ufu.br:3128" 
-			export http_proxy="http://proxy.ufu.br:3128"  
+			export https_proxy="http://proxy.ufu.br:3128"
+			export http_proxy="http://proxy.ufu.br:3128"
 			export ftp_proxy="http://proxy.ufu.br:3128"
 		' >> /etc/profile
 	fi;
-	
-	if [ "$( grep 'proxy.ufu.br' /etc/apt/apt.conf.d/10proxy )" = "" ]; then 
+
+	if [ "$( grep 'proxy.ufu.br' /etc/apt/apt.conf.d/10proxy )" = "" ]; then
 		echo 'Acquire::http::Proxy "http://proxy.ufu.br:3128/";' > /etc/apt/apt.conf.d/10proxy
 	fi;
 }
 
-main_make_pi() 
+main_make_pi()
 {
 
 	if [ "$(ls /home/pi | grep tasks)" = "" ]; then
 		(crontab -l 2>/dev/null; echo "@reboot /home/pi/makepi.sh") | crontab -
 		set_ufu_proxy
 		mkdir /home/pi/tasks
-		cd /home/pi/tasks/
 		create_task1 $1 $2 $3
+		echo "LOG: just created task 1" >> /home/pi/log.txt
 		create_task2
+		echo "LOG: just created task 2" >> /home/pi/log.txt
 	else
-		cd /home/pi/tasks/
-		script_to_run=$(echo "$(ls | sort) " | cut -d ' ' -f 1)
+		script_to_run=$(echo $(ls /home/pi/tasks/ | sort)" " | cut -d ' ' -f 1)
 		if [ "$script_to_run" = "" ]; then
-			cd /home/pi
-			rm -rf tasks
+			rm -rf /home/pi/tasks
+			echo "LOG: just removed /home/pi/tasks" >> /home/pi/log.txt
 			crontab -r
-		else 
-			./$script_to_run
+		else
+			echo "LOG: start to run $script_to_run" >> /home/pi/log.txt
+			/home/pi/tasks/$script_to_run >> /home/pi/log.txt
+			echo "LOG: just executed $script_to_run" >> /home/pi/log.txt
 			rm -f /home/pi/tasks/$script_to_run
 		fi;
 	fi;
