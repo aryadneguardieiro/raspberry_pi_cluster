@@ -78,9 +78,9 @@ main_make_pi()
 		(crontab -l 2>/dev/null; echo "@reboot sleep 40 && /home/pi/makepi.sh") | crontab -;
 		set_ufu_proxy;
 		mkdir /home/pi/tasks;
-		create_task1 $1 $2 $3;
+		create_task1;
 		echo "LOG: just created task 1" >> /home/pi/log.txt;
-		create_task2;
+		create_task2 $1 $2 $3;
 		echo "LOG: just created task 2" >> /home/pi/log.txt;
 		echo "LOG: rebootting now" >> /home/pi/log.txt;
 		sudo shutdown -r now >> /home/pi/log.txt;
