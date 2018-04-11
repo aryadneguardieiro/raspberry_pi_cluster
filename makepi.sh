@@ -82,6 +82,8 @@ main_make_pi()
 		echo "LOG: just created task 1" >> /home/pi/log.txt;
 		create_task2;
 		echo "LOG: just created task 2" >> /home/pi/log.txt;
+		echo "LOG: rebootting now" >> /home/pi/log.txt;
+		sudo shutdown -r now >> /home/pi/log.txt;
 	else
 		script_to_run=$(echo $(ls /home/pi/tasks/ | sort)" " | cut -d ' ' -f 1);
 		if [ "$script_to_run" = "" ]; then
@@ -93,10 +95,10 @@ main_make_pi()
 			/home/pi/tasks/$script_to_run >> /home/pi/log.txt;
 			echo "LOG: just executed $script_to_run" >> /home/pi/log.txt;
 			rm -f /home/pi/tasks/$script_to_run;
+			echo "LOG: rebootting now" >> /home/pi/log.txt;
+			sudo shutdown -r now >> /home/pi/log.txt;
 		fi;
 	fi;
 }
 
 main_make_pi $1 $2 $3
-echo "LOG: rebootting now" >> /home/pi/log.txt;
-sudo shutdown -r now >> /home/pi/log.txt;
