@@ -1,0 +1,5 @@
+scp {change_host_name, install_kubernets, set_proxy_ufu}.sh  pi@raspberry.local:~
+set_proxy_ufu
+install_kubernets
+reboot
+change_host_name cloud# 192.168.0.# 192.168.0.1
