@@ -4,7 +4,7 @@ create_task2()
 	ip=$2 # should be of format: 192.168.1.100
 	dns=$3 # should be of format: 192.168.1.1
 
-	echo "#!/bin/bash
+	echo "#!/bin/sh
 
 		# Change the hostname
 		sudo sed -i s/raspberrypi/$hostname/g /etc/hosts;
@@ -22,37 +22,32 @@ create_task2()
 		static domain_name_servers=$dns
 		EOT" > /home/pi/tasks/task2.sh;
 	
-	chmod +x /home/pi/tasks/task2.sh;
-
 }
 
 create_task1() {
-	echo '#!/bin/bash
+	echo '#!/bin/sh
 	
 		echo "LOG: started task1.sh"
-		
 		# Install Docker
-		curl -sSL get.docker.com | sh ;
+		curl -sSL get.docker.com | sh && \
 		  sudo usermod pi -aG docker
 
 		# Disable Swap
-		sudo dphys-swapfile swapoff ;
-		  sudo dphys-swapfile uninstall ;
-		  sudo update-rc.d dphys-swapfile remove;
-		echo Adding " cgroup_enable=cpuset cgroup_enable=memory" to /boot/cmdline.txt;
-		sudo cp /boot/cmdline.txt /boot/cmdline_backup.txt;
+		sudo dphys-swapfile swapoff && \
+		  sudo dphys-swapfile uninstall && \
+		  sudo update-rc.d dphys-swapfile remove
+		echo Adding " cgroup_enable=cpuset cgroup_enable=memory" to /boot/cmdline.txt
+		sudo cp /boot/cmdline.txt /boot/cmdline_backup.txt
 		# if you encounter problems, try changing cgroup_memory=1 to cgroup_enable=memory.
-		orig="$(head -n1 /boot/cmdline.txt) cgroup_enable=cpuset cgroup_memory=1";
-		echo $orig | sudo tee /boot/cmdline.txt;
+		orig="$(head -n1 /boot/cmdline.txt) cgroup_enable=cpuset cgroup_memory=1"
+		echo $orig | sudo tee /boot/cmdline.txt
 
 		# Add repo list and install kubeadm
-		curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - ;
-		  echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list ;
-		  sudo apt-get update ;
-		  sudo apt-get install -y --fix-missing kubeadm;
-		  echo "LOG: just run install kubeadm"' > /home/pi/tasks/task1.sh;
-
-	chmod +x /home/pi/tasks/task1.sh;
+		curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
+		  echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list && \
+		  sudo apt-get update -q && \
+		sudo apt-get install -qy kubeadm
+		echo "LOG: just run install kubeadm"' > /home/pi/tasks/task1.sh;
 }
 
 set_ufu_proxy()
@@ -92,7 +87,7 @@ main_make_pi()
 			crontab -r;
 		else
 			echo "LOG: start to run $script_to_run" >> /home/pi/log.txt;
-			/home/pi/tasks/$script_to_run >> /home/pi/log.txt;
+			sh /home/pi/tasks/$script_to_run >> /home/pi/log.txt;
 			echo "LOG: just executed $script_to_run" >> /home/pi/log.txt;
 			rm -f /home/pi/tasks/$script_to_run;
 			echo "LOG: rebootting now" >> /home/pi/log.txt;
