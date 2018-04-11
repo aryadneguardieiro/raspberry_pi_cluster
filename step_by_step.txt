@@ -1,5 +1,9 @@
-scp {change_host_name, install_kubernets, set_proxy_ufu}.sh  pi@raspberry.local:~
-set_proxy_ufu
-install_kubernets
-reboot
-change_host_name cloud# 192.168.0.# 192.168.0.1
+scp {change_host_name,install_kubernets,set_proxy_ufu}.sh  pi@raspberrypi.local:~
+
+sudo sh set_proxy_ufu.sh
+
+sh install_kubernets.sh
+
+sudo reboot
+
+sh change_host_name.sh cloud# 192.168.0.# 192.168.0.1
