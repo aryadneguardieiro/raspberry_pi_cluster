@@ -1,3 +1,5 @@
+#!/bin/sh
+
 create_task2()
 {
 	hostname=$1
@@ -12,21 +14,18 @@ create_task2()
 		sudo hostnamectl --static set-hostname $hostname;
 		sudo hostnamectl --pretty set-hostname $hostname;
 
-
 		# Set the static ip
-
 		sudo cat <<EOT >> /etc/dhcpcd.conf
 		interface eth0
 		static ip_address=$ip/24
 		static routers=$dns
 		static domain_name_servers=$dns
 		EOT" > /home/pi/tasks/task2.sh;
-	
 }
 
 create_task1() {
 	echo '#!/bin/sh
-	
+
 		echo "LOG: started task1.sh"
 		# Install Docker
 		curl -sSL get.docker.com | sh && \
@@ -45,8 +44,8 @@ create_task1() {
 		# Add repo list and install kubeadm
 		curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - && \
 		  echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list && \
-		  sudo apt-get update -q && \
-		sudo apt-get install -qy kubeadm
+		  sudo apt-get update && \
+		sudo apt-get install -y kubeadm
 		echo "LOG: just run install kubeadm"' > /home/pi/tasks/task1.sh;
 }
 
@@ -67,10 +66,9 @@ set_ufu_proxy()
 
 main_make_pi()
 {
-
 	if [ "$(ls /home/pi | grep tasks)" = "" ]; then
 		crontab -r;
-		(crontab -l 2>/dev/null; echo "@reboot sleep 40 && /home/pi/makepi.sh") | crontab -;
+		(crontab -l 2>/dev/null; echo "@reboot sleep 40 && sh /home/pi/makepi.sh") | crontab -;
 		set_ufu_proxy;
 		mkdir /home/pi/tasks;
 		create_task1;
