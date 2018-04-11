@@ -1,4 +1,4 @@
-create_task1()
+create_task2()
 {
 	hostname=$1
 	ip=$2 # should be of format: 192.168.1.100
@@ -20,16 +20,16 @@ create_task1()
 		static ip_address=$ip/24
 		static routers=$dns
 		static domain_name_servers=$dns
-		EOT" > /home/pi/tasks/task1.sh;
+		EOT" > /home/pi/tasks/task2.sh;
 	
-	chmod +x /home/pi/tasks/task1.sh;
+	chmod +x /home/pi/tasks/task2.sh;
 
 }
 
-create_task2() {
+create_task1() {
 	echo '#!/bin/bash
 	
-		echo "LOG: started task2.sh"
+		echo "LOG: started task1.sh"
 		
 		# Install Docker
 		curl -sSL get.docker.com | sh ;
@@ -50,9 +50,9 @@ create_task2() {
 		  echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list ;
 		  sudo apt-get update ;
 		  sudo apt-get install -y --fix-missing kubeadm;
-		  echo "LOG: just run task2"' > /home/pi/tasks/task2.sh;
+		  echo "LOG: just run install kubeadm"' > /home/pi/tasks/task1.sh;
 
-	chmod +x /home/pi/tasks/task2.sh;
+	chmod +x /home/pi/tasks/task1.sh;
 }
 
 set_ufu_proxy()
