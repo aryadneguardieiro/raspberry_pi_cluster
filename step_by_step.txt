@@ -2,6 +2,8 @@ scp {change_host_name,install_kubernets,set_proxy_ufu}.sh  pi@raspberrypi.local:
 
 sudo sh set_proxy_ufu.sh
 
+sudo reboot
+
 sh install_kubernets.sh
 
 sudo reboot
