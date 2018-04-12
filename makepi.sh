@@ -19,7 +19,7 @@ create_task2()
 		interface eth0
 		static ip_address=$ip/24
 		static routers=$dns
-		static domain_name_servers=$dns
+		static domain_name_servers=[8.8.8.8,8.8.4.4]
 		EOT" > /home/pi/tasks/task2.sh;
 }
 
@@ -56,11 +56,11 @@ set_ufu_proxy()
 			export https_proxy="http://proxy.ufu.br:3128"
 			export http_proxy="http://proxy.ufu.br:3128"
 			export ftp_proxy="http://proxy.ufu.br:3128"
-		' >> /etc/profile;
+		' | sudo tee -a /etc/profile;
 	fi;
 
 	if [ "$( grep 'proxy.ufu.br' /etc/apt/apt.conf.d/10proxy )" = "" ]; then
-		echo 'Acquire::http::Proxy "http://proxy.ufu.br:3128/";' > /etc/apt/apt.conf.d/10proxy;
+		echo 'Acquire::http::Proxy "http://proxy.ufu.br:3128/";' | sudo tee /etc/apt/apt.conf.d/10proxy;
 	fi;
 }
 
