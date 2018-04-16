@@ -28,8 +28,10 @@ create_task1() {
 
 		echo "LOG: started task1.sh"
 		# Install Docker
-		curl -sSL get.docker.com | sh && \
+		curl -x http://proxy.ufu.br:3128 -sSL get.docker.com > /home/pi/tasks/getDocker.sh;
+		sh /home/pi/tasks/getDocker.sh >> /home/pi/log.txt && \
 		  sudo usermod pi -aG docker
+		rm /home/pi/tasks/getDocker.sh;
 
 		# Disable Swap
 		sudo dphys-swapfile swapoff && \
@@ -85,7 +87,7 @@ main_make_pi()
 			crontab -r;
 		else
 			echo "LOG: start to run $script_to_run" >> /home/pi/log.txt;
-			sh /home/pi/tasks/$script_to_run >> /home/pi/log.txt;
+			sh /home/pi/tasks/$script_to_run >> /home/pi/log.txt 2>&1;
 			echo "LOG: just executed $script_to_run" >> /home/pi/log.txt;
 			rm -f /home/pi/tasks/$script_to_run;
 			echo "LOG: rebootting now" >> /home/pi/log.txt;
