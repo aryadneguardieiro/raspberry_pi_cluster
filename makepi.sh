@@ -28,7 +28,7 @@ create_task1() {
 
 		echo "LOG: started task1.sh"
 		# Install Docker
-		curl -x http://proxy.ufu.br:3128 -sSL get.docker.com > /home/pi/tasks/getDocker.sh;
+		curl -sSL get.docker.com > /home/pi/tasks/getDocker.sh;
 		sh /home/pi/tasks/getDocker.sh >> /home/pi/log.txt && \
 		  sudo usermod pi -aG docker
 		rm /home/pi/tasks/getDocker.sh;
@@ -70,7 +70,7 @@ main_make_pi()
 {
 	if [ "$(ls /home/pi | grep tasks)" = "" ]; then
 		crontab -r;
-		(crontab -l 2>/dev/null; echo "@reboot sleep 40 && sh /home/pi/makepi.sh") | crontab -;
+		(crontab -l 2>/dev/null; echo "@reboot sh /home/pi/makepi.sh") | crontab -;
 		set_ufu_proxy;
 		mkdir /home/pi/tasks;
 		create_task1;
@@ -95,5 +95,13 @@ main_make_pi()
 		fi;
 	fi;
 }
+
+result=""
+while [ "$result" != "0" ]; do
+	ping proxy.ufu.br -c 2 -q;
+	result=$(echo $?);
+	echo "Ping proxy.ufu.br -> result=$result" >> /home/pi/log.txt;
+	sleep 2;
+done
 
 main_make_pi $1 $2 $3
