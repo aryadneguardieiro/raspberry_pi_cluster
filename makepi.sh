@@ -19,7 +19,7 @@ create_task2()
 		interface eth0
 		static ip_address=$ip/24
 		static routers=$dns
-		static domain_name_servers=[8.8.8.8,8.8.4.4]
+		static domain_name_servers=8.8.8.8, 8.8.4.4
 		EOT" > /home/pi/tasks/task2.sh;
 }
 
