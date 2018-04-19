@@ -53,13 +53,15 @@ create_task1() {
 
 set_ufu_proxy()
 {
-	if [ "$( grep 'proxy.ufu.br' /etc/profile )" = "" ]; then
+	if [ "$( grep 'proxy.ufu.br' /etc/environment )" = "" ]; then
 		echo '
-			export https_proxy="http://proxy.ufu.br:3128"
-			export http_proxy="http://proxy.ufu.br:3128"
-			export ftp_proxy="http://proxy.ufu.br:3128"
-		' | sudo tee -a /etc/profile;
+			https_proxy="http://proxy.ufu.br:3128"
+			http_proxy="http://proxy.ufu.br:3128"
+			ftp_proxy="http://proxy.ufu.br:3128"
+		' | sudo tee -a /etc/environment;
 	fi;
+
+	echo 'Defaults env_keep += "ftp_proxy http_proxy https_proxy"' | sudo EDITOR='tee -a' visudo
 
 	if [ "$( grep 'proxy.ufu.br' /etc/apt/apt.conf.d/10proxy )" = "" ]; then
 		echo 'Acquire::http::Proxy "http://proxy.ufu.br:3128/";' | sudo tee /etc/apt/apt.conf.d/10proxy;
@@ -83,8 +85,9 @@ main_make_pi()
 		script_to_run=$(echo $(ls /home/pi/tasks/ | sort)" " | cut -d ' ' -f 1);
 		if [ "$script_to_run" = "" ]; then
 			rm -rf /home/pi/tasks;
-			echo "LOG: just removed /home/pi/tasks" >> /home/pi/log.txt;
+			echo "LOG: just removed /home/pi/tasks and refreshing crontab" >> /home/pi/log.txt;
 			crontab -r;
+			echo "Done!! :DD" >> /home/pi/log.txt;
 		else
 			echo "LOG: start to run $script_to_run" >> /home/pi/log.txt;
 			sh /home/pi/tasks/$script_to_run >> /home/pi/log.txt 2>&1;
