@@ -68,6 +68,17 @@ change_password()
 	echo "pi:$1" | sudo chpasswd -c SHA512
 }
 
+test_connection() 
+{
+	result=""
+	while [ "$result" != "0" ]; do
+		ping proxy.ufu.br -c 2 -q;
+		result=$(echo $?);
+		echo "Ping proxy.ufu.br -> result=$result" >> /home/pi/log.txt;
+		sleep 2;
+	done
+}
+
 main_make_pi()
 {
 	if [ "$(ls /home/pi | grep tasks)" = "" ]; then
@@ -90,6 +101,7 @@ main_make_pi()
 			crontab -r;
 			echo "Done!! :DD" >> /home/pi/log.txt;
 		else
+			test_connection;
 			echo "LOG: start to run $script_to_run" >> /home/pi/log.txt;
 			sh /home/pi/tasks/$script_to_run >> /home/pi/log.txt 2>&1;
 			echo "LOG: just executed $script_to_run" >> /home/pi/log.txt;
@@ -100,12 +112,5 @@ main_make_pi()
 	fi;
 }
 
-result=""
-while [ "$result" != "0" ]; do
-	ping proxy.ufu.br -c 2 -q;
-	result=$(echo $?);
-	echo "Ping proxy.ufu.br -> result=$result" >> /home/pi/log.txt;
-	sleep 2;
-done
 
 main_make_pi $1 $2 $3 $4
