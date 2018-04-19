@@ -54,18 +54,18 @@ create_task1() {
 set_ufu_proxy()
 {
 	if [ "$( grep 'proxy.ufu.br' /etc/environment )" = "" ]; then
-		echo '
-			https_proxy="http://proxy.ufu.br:3128"
-			http_proxy="http://proxy.ufu.br:3128"
-			ftp_proxy="http://proxy.ufu.br:3128"
-		' | sudo tee -a /etc/environment;
+		printf "https_proxy=\"http://proxy.ufu.br:3128\"\nhttp_proxy=\"http://proxy.ufu.br:3128\"\nftp_proxy=\"http://proxy.ufu.br:3128\"" | sudo tee -a /etc/environment;
+		echo 'Defaults env_keep += "ftp_proxy http_proxy https_proxy"' | sudo EDITOR='tee -a' visudo
 	fi;
-
-	echo 'Defaults env_keep += "ftp_proxy http_proxy https_proxy"' | sudo EDITOR='tee -a' visudo
 
 	if [ "$( grep 'proxy.ufu.br' /etc/apt/apt.conf.d/10proxy )" = "" ]; then
 		echo 'Acquire::http::Proxy "http://proxy.ufu.br:3128/";' | sudo tee /etc/apt/apt.conf.d/10proxy;
 	fi;
+}
+
+change_password()
+{
+	echo "pi:$1" | sudo chpasswd -c SHA512
 }
 
 main_make_pi()
@@ -74,6 +74,7 @@ main_make_pi()
 		crontab -r;
 		(crontab -l 2>/dev/null; echo "@reboot sh /home/pi/makepi.sh") | crontab -;
 		set_ufu_proxy;
+		change_password $4
 		mkdir /home/pi/tasks;
 		create_task1;
 		echo "LOG: just created task 1" >> /home/pi/log.txt;
@@ -107,4 +108,4 @@ while [ "$result" != "0" ]; do
 	sleep 2;
 done
 
-main_make_pi $1 $2 $3
+main_make_pi $1 $2 $3 $4
