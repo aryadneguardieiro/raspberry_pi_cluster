@@ -159,7 +159,7 @@ main_make_pi()
 {
 
 	if [ "$(ls /home/pi | grep tasks)" = "" ]; then
-		(crontab -l 2>/dev/null; echo "@reboot /home/pi/makepi.sh") | crontab -
+		(crontab -l 2>/dev/null; echo "@reboot /home/pi/makepi_with_proxy.sh") | crontab -
 		set_ufu_proxy
 		mkdir /home/pi/tasks
 		cd /home/pi/tasks/
@@ -185,6 +185,4 @@ main_make_pi()
 # $2: static ip. Ex.: 192.168.0.10
 # $3: gateway ip. Ex.: 192.168.0.1
 # $4: password. Ex.: yourPassword
-main_make_pi $1 $2 $3
-
 main_make_pi $1 $2 $3
