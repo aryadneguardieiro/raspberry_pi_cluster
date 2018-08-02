@@ -1,9 +1,3 @@
-Setting up a Raspberry Pi for a Kubernetes Cluster
-=======
+Files to automatically configure a raspberry pi cluster.
 
-1. Install on the raspberrypi the raspbian version: Raspbian Stretch Lite ([from here](https://www.raspberrypi.org/downloads/raspbian/)).
-2. After burn the SO to the SD card, create a file called ssh on the /boot directory.
-3. Connect the raspberrypi to the local network.
-4. Access the raspberrypi using ssh:
-  `ssh pi@raspberrypi.local`
-5. 
+Use the makepi.sh to configure the cluster without use proxy.
