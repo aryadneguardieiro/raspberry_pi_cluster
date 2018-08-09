@@ -49,6 +49,8 @@ spec:
         volumeMounts:
             - name: nfs
               mountPath: "/usr/local/apache2/htdocs"
+      nodeSelector:
+        beta.kubernetes.io/arch: arm
       volumes:
       - name: nfs
         persistentVolumeClaim:
@@ -64,7 +66,7 @@ metadata:
   name: video-dash
 spec:
   ports:
-    - port: 8080
+    - port: 80
       targetPort: 80
       nodePort: 31450
   selector:
