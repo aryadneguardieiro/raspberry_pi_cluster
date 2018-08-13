@@ -3,11 +3,15 @@ kind: Ingress
 metadata:
   name: video-dash
 spec:
+  tls:
+  - hosts:
+    - video.example.com
+    secretName: video-dash-secret
   rules:
-  - host: videodash.example.com
+  - host: video.example.com
     http:
       paths:
       - path: /
         backend:
           serviceName: video-dash
-          servicePort: 80
+          servicePort: 8080
