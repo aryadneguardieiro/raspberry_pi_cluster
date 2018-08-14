@@ -1,3 +1,30 @@
+#----------------------- Video Dash Persistent Volume -------------------#
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-second
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: 192.168.0.56
+    path: "/home/cloud/videos"
+
+---
+#----------------------- Video Dash Persistent Volume Claim  -------------------#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-second
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+---
 #----------------------- Video Dash Deployment -------------------#
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
@@ -19,14 +46,14 @@ spec:
         ports:
         - containerPort: 80
         volumeMounts:
-            - name: nfs
+            - name: nfs-second
               mountPath: "/usr/local/apache2/htdocs"
       nodeSelector:
-        aqui: sim
+        video-dash-second: sim
       volumes:
-      - name: nfs
+      - name: nfs-second
         persistentVolumeClaim:
-          claimName: nfs
+          claimName: nfs-second
 
 ---
 #----------------------- Video Dash Service -------------------#
@@ -42,7 +69,7 @@ spec:
       targetPort: 80
       nodePort: 31450
   selector:
-    app: video-dash
+    app: video-dash-second
   type: NodePort
 #---
 

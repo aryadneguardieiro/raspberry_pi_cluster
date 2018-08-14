@@ -3,10 +3,6 @@ kind: Ingress
 metadata:
   name: video-dash
 spec:
-  tls:
-  - hosts:
-    - video.example.com
-    secretName: video-dash-secret
   rules:
   - host: video.example.com
     http:
