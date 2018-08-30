@@ -3,6 +3,10 @@ import requests
 import sys
 import ipdb
 
+# code based on: 
+# https://www.robustperception.io/prometheus-query-results-as-csv and 
+# https://medium.com/@aneeshputtur/export-data-from-prometheus-to-csv-b19689d780aa
+
 def GetMetrixNames(url):
     response = requests.get('{0}/api/v1/label/__name__/values'.format(url))
     names = response.json()['data']
