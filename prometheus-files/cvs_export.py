@@ -1,7 +1,9 @@
 import csv
 import requests
 import sys
-import ipdb
+import ipdb # for debug. Ex: python -m ipdb cvs_export.py http://localhost:30000 30s dir_path
+import os # mkdir 
+import shutil # rmtree
 
 # code based on: 
 # https://www.robustperception.io/prometheus-query-results-as-csv and 
@@ -13,19 +15,32 @@ def GetMetrixNames(url):
     #Return metrix names
     return names
 
+def create_dir(path):
+    try:  
+        rmtree.rmtree(path)
+    except OSError:  
+        print("Error at the deletion of directory")
+    try:
+        os.mkdir(path)
+    except OSError:  
+        print("Error at the creation of directory")
+        sys.exit(1)
+
 """
 Prometheus hourly data as csv.
 """
 
-if len(sys.argv) != 3:
-    print('Usage: {0} http://localhost:9090 interval(1m,2h,...)'.format(sys.argv[0]))
+if len(sys.argv) != 4:
+    print('Usage: {0} http://localhost:9090 interval(1m,2h,...) dir_path'.format(sys.argv[0]))
     sys.exit(1)
 
 metrixNames=GetMetrixNames(sys.argv[1])
 interval=sys.argv[2]
-writeHeader=True
+path=sys.argv[3]
 
 for metrixName in metrixNames[0..1]:
+    create_dir(path)
+    
     with open(metrixName + '.csv', 'w') as csvfile:
         writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
         
@@ -47,7 +62,7 @@ for metrixName in metrixNames[0..1]:
         writer.writerow(['name', 'timestamp', 'value'] + labelnames)
 
         for result in results:
-            for value in results['values']:
+            for value in result['values']:
                 l = [result['metric'].get('__name__', '')]
                 l.append(value[0])
                 l.append(value[1])
