@@ -18,6 +18,8 @@ def GetMetrixNames(url):
 def create_dir(path):
     try:  
         shutil.rmtree(path)
+    except OSError:
+        print("Directory not deleted")
     try:
         os.mkdir(path)
     except OSError:  
