@@ -17,9 +17,7 @@ def GetMetrixNames(url):
 
 def create_dir(path):
     try:  
-        rmtree.rmtree(path)
-    except OSError:  
-        print("Error at the deletion of directory")
+        shutil.rmtree(path)
     try:
         os.mkdir(path)
     except OSError:  
@@ -41,7 +39,7 @@ path=sys.argv[3]
 for metrixName in metrixNames[0:1]:
     create_dir(path)
     
-    with open(metrixName + '.csv', 'w') as csvfile:
+    with open(path + '/' + metrixName + '.csv', 'w') as csvfile:
         writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
         
         response = requests.get('{0}/api/v1/query'.format(sys.argv[1]), params={'query': metrixName+'['+interval+']'})
