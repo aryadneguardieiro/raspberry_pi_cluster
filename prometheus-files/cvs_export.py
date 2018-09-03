@@ -38,7 +38,7 @@ metrixNames=GetMetrixNames(sys.argv[1])
 interval=sys.argv[2]
 path=sys.argv[3]
 
-for metrixName in metrixNames[0..1]:
+for metrixName in metrixNames[0:1]:
     create_dir(path)
     
     with open(metrixName + '.csv', 'w') as csvfile:
