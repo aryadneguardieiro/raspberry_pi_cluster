@@ -3,6 +3,9 @@ import requests
 import sys
 import os # mkdir 
 import shutil # rmtree
+import matplotlib
+import pdb
+matplotlib.use('agg')
 from matplotlib import pyplot
 
 # code based on: 
@@ -39,8 +42,9 @@ interval=sys.argv[2]
 path=sys.argv[3]
 create_dir(path)
 
-for metrixName in metrixNames[0:1]:
-    
+for metrixName in metrixNames[0:5]:
+    create_dir(path)
+
     with open(path + '/' + metrixName + '.csv', 'w') as csvfile:
         writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
 
@@ -75,17 +79,18 @@ for metrixName in metrixNames[0:1]:
                 l.append(value[0])
                 l.append(value[1])
                 writer.writerow(l)
-                
+
                 if tag in time_series:
                     time_series[tag]['x'] = time_series[tag]['x'] + [value[0]]
                     time_series[tag]['y'] = time_series[tag]['y'] + [value[1]]
                 else:
                     time_series[tag] = {'x': [value[0]], 'y': [value[1]]}
-                    
+
 
         for time_serie_name, time_serie_value in time_series.items():
             fig = pyplot.figure()
             ax = pyplot.subplot(111)
-            ax.plot(time_serie_value['x'],time_serie_value['y'],time_serie_name)
+            #pdb.set_trace()
+            ax.plot(time_serie_value['x'],time_serie_value['y'])
             pyplot.title(metrixName)
             fig.savefig(path + '/' + metrixName + '.png')
