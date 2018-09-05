@@ -1,9 +1,9 @@
 import csv
 import requests
 import sys
-import ipdb # for debug. Ex: python -m ipdb cvs_export.py http://localhost:30000 30s dir_path
 import os # mkdir 
 import shutil # rmtree
+from matplotlib import pyplot
 
 # code based on: 
 # https://www.robustperception.io/prometheus-query-results-as-csv and 
@@ -37,16 +37,16 @@ if len(sys.argv) != 4:
 metrixNames=GetMetrixNames(sys.argv[1])
 interval=sys.argv[2]
 path=sys.argv[3]
+create_dir(path)
 
 for metrixName in metrixNames[0:1]:
-    create_dir(path)
     
     with open(path + '/' + metrixName + '.csv', 'w') as csvfile:
         writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-        
+
         response = requests.get('{0}/api/v1/query'.format(sys.argv[1]), params={'query': metrixName+'['+interval+']'})
         results = response.json()['data']['result']
-        
+
         # Build a list of all labelnames used.
         #gets all keys and discard __name__
         labelnames = set()
@@ -59,13 +59,33 @@ for metrixName in metrixNames[0:1]:
         labelnames = sorted(labelnames)
 
         # Write the samples.
-        writer.writerow(['name', 'timestamp', 'value'] + labelnames)
+        writer.writerow(['name'] + labelnames + ['timestamp', 'value'])
+
+        time_series = {}
 
         for result in results:
             for value in result['values']:
                 l = [result['metric'].get('__name__', '')]
-                l.append(value[0])
-                l.append(value[1])
+                tag = result['metric'].get('__name__', '')
+
                 for label in labelnames:
                     l.append(result['metric'].get(label, ''))
+                    tag = tag +'_'+ result['metric'].get(label, '')
+
+                l.append(value[0])
+                l.append(value[1])
                 writer.writerow(l)
+                
+                if tag in time_series:
+                    time_series[tag]['x'] = time_series[tag]['x'] + [value[0]]
+                    time_series[tag]['y'] = time_series[tag]['y'] + [value[1]]
+                else:
+                    time_series[tag] = {'x': [value[0]], 'y': [value[1]]}
+                    
+
+        for time_serie_name, time_serie_value in time_series.items():
+            fig = pyplot.figure()
+            ax = pyplot.subplot(111)
+            ax.plot(time_serie_value['x'],time_serie_value['y'],time_serie_name)
+            pyplot.title(metrixName)
+            fig.savefig(path + '/' + metrixName + '.png')
