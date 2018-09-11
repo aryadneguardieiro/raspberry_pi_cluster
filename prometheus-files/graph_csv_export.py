@@ -42,9 +42,8 @@ interval=sys.argv[2]
 path=sys.argv[3]
 create_dir(path)
 
-for metrixName in metrixNames[0:5]:
-    create_dir(path)
-
+for metrixName in metrixNames:
+    print('Gerando para: ' + metrixName)
     with open(path + '/' + metrixName + '.csv', 'w') as csvfile:
         writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
 
@@ -85,8 +84,8 @@ for metrixName in metrixNames[0:5]:
                     time_series[tag]['y'] = time_series[tag]['y'] + [value[1]]
                 else:
                     time_series[tag] = {'x': [value[0]], 'y': [value[1]]}
-
-
+        """
+        print('Hora de gerar o grafico...')
         for time_serie_name, time_serie_value in time_series.items():
             fig = pyplot.figure()
             ax = pyplot.subplot(111)
@@ -94,3 +93,6 @@ for metrixName in metrixNames[0:5]:
             ax.plot(time_serie_value['x'],time_serie_value['y'])
             pyplot.title(metrixName)
             fig.savefig(path + '/' + metrixName + '.png')
+            pyplot.close(fig)
+        """
+    print(metrixName + ' greado com sucesso')
