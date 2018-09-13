@@ -4,6 +4,7 @@ import sys
 import os # mkdir 
 import shutil # rmtree
 import matplotlib
+import datetime
 matplotlib.use('agg')
 import pdb 
 from matplotlib import pyplot
@@ -11,6 +12,8 @@ from matplotlib import rcParams
 #rcParams.update({'figure.autolayout': True})
 from progress.bar import ChargingBar
 rcParams['legend.fontsize'] = 'small'
+import matplotlib.dates as md
+
 
 def create_dir(path):
     try:  
@@ -27,6 +30,10 @@ def plot_figure(fig, ax, measure_name, file_name):
   handles, labels = ax.get_legend_handles_labels()
   lgd = ax.legend(handles, loc='upper center', bbox_to_anchor=(0.5,-0.1))
   ax.grid(True)
+  xfmt = md.DateFormatter('%H:%M:%S')
+  ax.xaxis.set_major_formatter(xfmt)
+  ax.xaxis_date()
+  pyplot.xticks( rotation=25 )
   pyplot.title(measure_name)
   fig.savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches='tight')
   pyplot.close(fig)
@@ -40,6 +47,7 @@ csv_list = glob.glob(cvs_dir_path+"/*.csv")
 plot_dir_path = sys.argv[2]
 
 bar = ChargingBar('Processando graficos', max=len(csv_list), suffix = '%(percent).1f%% %(elapsed_td)s')
+create_dir(plot_dir_path)
 
 for csv_file_name in csv_list:
   with open(csv_file_name) as csv_file:
@@ -48,7 +56,7 @@ for csv_file_name in csv_list:
 
     for row in reader:
       value = float(row.pop('value'))
-      timestamp = float(row.pop('timestamp'))
+      timestamp = datetime.datetime.fromtimestamp((float(row.pop('timestamp'))))
       tag = '-'.join(list(row.values())[1:])
 
       if tag in time_series:
@@ -74,7 +82,6 @@ for csv_file_name in csv_list:
         cont = cont + 1
         fig = pyplot.figure()
         ax = pyplot.subplot(111)
-
 
     plot_figure(fig, ax, measure_name, plot_dir_path + '/' + measure_name + '_' + csv_file_name.split('/')[-2] + '_' + str(cont) + '.png')
     bar.next()
