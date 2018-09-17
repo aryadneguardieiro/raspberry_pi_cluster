@@ -10,10 +10,9 @@ import pdb
 from matplotlib import pyplot
 from matplotlib import rcParams
 #rcParams.update({'figure.autolayout': True})
-from progress.bar import ChargingBar
+#from progress.bar import ChargingBar
 rcParams['legend.fontsize'] = 'small'
 import matplotlib.dates as md
-
 
 def create_dir(path):
     try:  
@@ -46,8 +45,10 @@ cvs_dir_path = sys.argv[1]
 csv_list = glob.glob(cvs_dir_path+"/*.csv")
 plot_dir_path = sys.argv[2]
 
-bar = ChargingBar('Processando graficos', max=len(csv_list), suffix = '%(percent).1f%% %(elapsed_td)s')
+#bar = ChargingBar('Processando graficos', max=len(csv_list), suffix = '%(percent).1f%% %(elapsed_td)s')
 create_dir(plot_dir_path)
+metrics_counter = 0
+print("Numer of metrics: " + str(len(csv_list)))
 
 for csv_file_name in csv_list:
   with open(csv_file_name) as csv_file:
@@ -84,9 +85,10 @@ for csv_file_name in csv_list:
         ax = pyplot.subplot(111)
 
     plot_figure(fig, ax, measure_name, plot_dir_path + '/' + measure_name + '_' + csv_file_name.split('/')[-2] + '_' + str(cont) + '.png')
-    bar.next()
-
-bar.finish()
+    #bar.next()
+    metrics_counter = metrics_counter + 1
+    print("Printed metrics: "+ str(metrics_counter))  
+#bar.finish()
 
 
  
