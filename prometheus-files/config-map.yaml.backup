@@ -9,7 +9,7 @@ data:
   prometheus.yml: |-
     global:
       scrape_interval: 10s
-      evaluation_interval: 10s
+      evaluation_interval: 1m
 
     scrape_configs:
       - job_name: 'kubernetes-apiservers'
@@ -42,7 +42,7 @@ data:
         - action: labelmap
           regex: __meta_kubernetes_node_label_(.+)
         - target_label: __address__
-          replacement: 192.168.0.30:6443
+          replacement: kubernetes.default.svc.cluster.local:443
         - source_labels: [__meta_kubernetes_node_name]
           regex: (.+)
           target_label: __metrics_path__
@@ -91,7 +91,7 @@ data:
         - action: labelmap
           regex: __meta_kubernetes_node_label_(.+)
         - target_label: __address__
-          replacement: 192.168.0.30:6443
+          replacement: kubernetes.default.svc.cluster.local:443
         - source_labels: [__meta_kubernetes_node_name]
           regex: (.+)
           target_label: __metrics_path__
@@ -118,7 +118,7 @@ data:
           action: replace
           target_label: __address__
           regex: ([^:]+)(?::\d+)?;(\d+)
-          replacement: $1:$2
+          replacement: ${1}:${2}
         - action: labelmap
           regex: __meta_kubernetes_service_label_(.+)
         - source_labels: [__meta_kubernetes_namespace]

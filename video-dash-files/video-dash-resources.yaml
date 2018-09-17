@@ -9,7 +9,7 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    server: 192.168.0.56
+    server: 192.168.0.110
     path: "/home/cloud/videos"
 
 ---
