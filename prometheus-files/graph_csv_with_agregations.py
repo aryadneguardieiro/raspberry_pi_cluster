@@ -59,7 +59,12 @@ for metrixName in metrixNames:
         now = datetime.datetime.now()
         offset = str(offset_til_midnight + (now.hour * 60) + now.minute) + "m";
         writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-        response = s.get('{0}/api/v1/query'.format(sys.argv[1]), params={'query': metrixName+'['+interval+'] offset ' + offset})
+        i_have_to_get = "values"
+        if metrixName == "container_network_transmit_bytes_total" or metrixName == "container_cpu_usage_seconds_total":
+            response = s.get('{0}/api/v1/query'.format(sys.argv[1]), params={'query': 'sum(rate(' + metrixName + '{image!=\"\", pod_name=~\"video-dash.*\"}[' + interval + '] offset ' + offset + ')) by (pod_name)'})
+            i_have_to_get = "value"
+        else:
+            response = s.get('{0}/api/v1/query'.format(sys.argv[1]), params={'query': metrixName+'['+interval+'] offset ' + offset})
         results = response.json()['data']['result']
         # Build a list of all labelnames used.
         #gets all keys and discard __name__
@@ -78,7 +83,12 @@ for metrixName in metrixNames:
         time_series = {}
 
         for result in results:
-            for value in result['values']:
+            iterate_in = result[i_have_to_get]
+
+            if i_have_to_get == "value":
+                iterate_in = [iterate_in]
+
+            for value in iterate_in:
                 l = [result['metric'].get('__name__', '')]
                 tag = result['metric'].get('__name__', '')
 
