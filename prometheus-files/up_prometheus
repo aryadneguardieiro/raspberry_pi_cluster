@@ -1,6 +1,8 @@
 #!/bin/bash
 
 kubectl delete namespace monitoring;
+kubectl delete pvc nfs-prometheus;
+kubectl delete pv nfs-prometheus;
 kubectl delete clusterrole prometheus;
 kubectl delete clusterrolebinding prometheus;
 
