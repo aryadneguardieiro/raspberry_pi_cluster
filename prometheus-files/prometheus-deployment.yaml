@@ -1,3 +1,30 @@
+#----------------------- Prometheus Persistent Volume -------------------#
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-prometheus
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: 192.168.0.125
+    path: "/home/cloud/prometheus"
+
+#----------------------- Prometheus Persistent Volume Claim  -------------------#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-prometheus
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+
+#----------------------- Prometheus Deployment  -------------------#
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -33,3 +60,5 @@ spec:
   
         - name: prometheus-storage-volume
           emptyDir: {}
+          persistentVolumeClaim:
+          claimName: nfs-prometheus
