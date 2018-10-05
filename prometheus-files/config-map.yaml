@@ -11,13 +11,6 @@ data:
       scrape_interval: 1s
       evaluation_interval: 1m
 
-    # Remote write endpoint configuration (for Graphite, OpenTSDB, or InfluxDB).
-    remote_write:
-      - url: "http://192.168.0.103:8086/api/v1/prom/write?u=user_prometheus&p=necos&db=prometheus_producao"
-    # Remote read endpoint configuration (for InfluxDB only at the moment).
-    remote_read:
-      - url: "http://192.168.0.103:8086/api/v1/prom/read?u=user_prometheus&p=necos&db=prometheus_producao"
-
     scrape_configs:
       - job_name: 'kubernetes-apiservers'
 
