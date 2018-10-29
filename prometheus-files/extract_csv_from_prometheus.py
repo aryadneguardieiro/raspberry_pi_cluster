@@ -105,6 +105,6 @@ for metrixName in metrixNames:
                             time_series[tag] = {'x': [value[0]], 'y': [value[1]]}
                 current = current + 1
                 percentage = current/total * 100
-                print(str(math.ceil(percentage)) + "% arquivos gerados (" +str(current) + "/" + str(total) + ")")
+                print(str(math.ceil(percentage)) + "% arquivos gerados (" +str(current) + "/" + str(total) + ")", end='\r')
             except:
                 print("Nao foi possivel gerar "+ metrixName)
