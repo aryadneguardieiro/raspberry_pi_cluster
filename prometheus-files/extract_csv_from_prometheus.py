@@ -44,7 +44,7 @@ def get_minute(begin_hour_test):
 Prometheus hourly data as csv.
 """
 
-if len(sys.argv) != 6:
+if len(sys.argv) != 7:
     print('Usage: {0} http://localhost:30000 duration(1m,2h,...) dir_path begin_test_day (dd/mm/aa) begin_test_hour (hh:mm:ss) step'.format(sys.argv[0]))
     sys.exit(1)
 
@@ -63,12 +63,12 @@ total = len(metrixNames)
 
 if interval_int % step != 0:
     print('Step nao divide o intervalo.')
-    return 1
+    exit()
 
-for metrixName in metrixNames:
+for metrixName in metrixNames[:1]:
     if '_bucket' not in metrixName and '_sum' not in metrixName and '_count' not in metrixName:
         with open(path + '/' + metrixName + '.csv', 'w') as csvfile:
-            
+           
             writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
             
             try:
