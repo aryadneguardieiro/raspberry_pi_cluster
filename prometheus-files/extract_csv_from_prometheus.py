@@ -60,50 +60,51 @@ current = 0
 total = len(metrixNames)
 
 for metrixName in metrixNames:
-    with open(path + '/' + metrixName + '.csv', 'w') as csvfile:
-        now = datetime.utcnow()
-        #offset = str(offset_til_midnight + (now.hour * 60) + now.minute + days_shift * 3600) + "m";
-        time_delta = datetime.now() - end_test_date
-        offset = time_delta.days*1440 + math.ceil(time_delta.seconds/60)
-        offset = str(offset)+'m'
-        writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-        try:
-            response = s.get('{0}/api/v1/query'.format(sys.argv[1]), params={'query': metrixName+'['+interval+'] offset ' + offset}, timeout=60)
-            results = response.json()['data']['result']
-            labelnames = set()
+    if '_bucket' not in metrixName and '_sum' not in metrixName and '_count' not in metrixName:
+        with open(path + '/' + metrixName + '.csv', 'w') as csvfile:
+            now = datetime.utcnow()
+            #offset = str(offset_til_midnight + (now.hour * 60) + now.minute + days_shift * 3600) + "m";
+            time_delta = datetime.now() - end_test_date
+            offset = time_delta.days*1440 + math.ceil(time_delta.seconds/60)
+            offset = str(offset)+'m'
+            writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+            try:
+                response = s.get('{0}/api/v1/query'.format(sys.argv[1]), params={'query': metrixName+'['+interval+'] offset ' + offset}, timeout=60)
+                results = response.json()['data']['result']
+                labelnames = set()
 
-            for result in results:
-                labelnames.update(result['metric'].keys())
+                for result in results:
+                    labelnames.update(result['metric'].keys())
 
-            # Canonicalize
-            labelnames.discard('__name__')
-            labelnames = sorted(labelnames)
+                # Canonicalize
+                labelnames.discard('__name__')
+                labelnames = sorted(labelnames)
 
-            # Write the samples.
-            writer.writerow(['name'] + labelnames + ['timestamp', 'value'])
+                # Write the samples.
+                writer.writerow(['name'] + labelnames + ['timestamp', 'value'])
 
-            time_series = {}
+                time_series = {}
 
-            for result in results:
-                for value in result['values']:
-                    l = [result['metric'].get('__name__', '')]
-                    tag = result['metric'].get('__name__', '')
+                for result in results:
+                    for value in result['values']:
+                        l = [result['metric'].get('__name__', '')]
+                        tag = result['metric'].get('__name__', '')
 
-                    for label in labelnames:
-                        l.append(result['metric'].get(label, ''))
-                        tag = tag +'_'+ result['metric'].get(label, '')
-                    l.append(value[0])
-                    l.append(value[1])
-                    writer.writerow(l)
+                        for label in labelnames:
+                            l.append(result['metric'].get(label, ''))
+                            tag = tag +'_'+ result['metric'].get(label, '')
+                        l.append(value[0])
+                        l.append(value[1])
+                        writer.writerow(l)
 
-                    if tag in time_series:
-                       if time_series[tag]['x'][-1] != value[0] and time_series[tag]['y'][-1] != value[1]:
-                           time_series[tag]['x'] = time_series[tag]['x'] + [value[0]]
-                           time_series[tag]['y'] = time_series[tag]['y'] + [value[1]]
-                    else:
-                        time_series[tag] = {'x': [value[0]], 'y': [value[1]]}
-            current = current + 1
-            percentage = current/total * 100
-            print(str(math.ceil(percentage)) + "% arquivos gerados (" +str(current) + "/" + str(total) + ")", end='\r')
-        except:
-            print("Nao foi possivel gerar "+ metrixName)
+                        if tag in time_series:
+                           if time_series[tag]['x'][-1] != value[0] and time_series[tag]['y'][-1] != value[1]:
+                               time_series[tag]['x'] = time_series[tag]['x'] + [value[0]]
+                               time_series[tag]['y'] = time_series[tag]['y'] + [value[1]]
+                        else:
+                            time_series[tag] = {'x': [value[0]], 'y': [value[1]]}
+                current = current + 1
+                percentage = current/total * 100
+                print(str(math.ceil(percentage)) + "% arquivos gerados (" +str(current) + "/" + str(total) + ")", end='\r')
+            except:
+                print("Nao foi possivel gerar "+ metrixName)
