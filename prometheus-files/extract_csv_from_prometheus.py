@@ -108,3 +108,5 @@ for metrixName in metrixNames:
                 print(str(math.ceil(percentage)) + "% arquivos gerados (" +str(current) + "/" + str(total) + ")", end='\r')
             except:
                 print("Nao foi possivel gerar "+ metrixName)
+                percentage = current/total * 100
+                print(str(math.ceil(percentage)) + "% arquivos gerados (" +str(current) + "/" + str(total) + ")", end='\r')
