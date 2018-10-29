@@ -6,9 +6,10 @@ import os # mkdir
 import shutil # rmtree
 import matplotlib
 import pdb
-import datetime
 import math
+import datetime
 from datetime import datetime
+from datetime import timedelta
 matplotlib.use('agg')
 from matplotlib import pyplot
 
@@ -50,7 +51,7 @@ if len(sys.argv) != 7:
 
 metrixNames=GetMetrixNames(sys.argv[1])
 interval=sys.argv[2]
-interval_int = int(sys.argv[2][:-1])
+interval_int = int(sys.argv[2][:-1]) * 3600
 path=sys.argv[3]
 begin_hour_test=sys.argv[5]
 step=int(sys.argv[6])
@@ -68,23 +69,23 @@ if interval_int % step != 0:
 for metrixName in metrixNames[:1]:
     if '_bucket' not in metrixName and '_sum' not in metrixName and '_count' not in metrixName:
         with open(path + '/' + metrixName + '.csv', 'w') as csvfile:
-           
+
             writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-            
+
             try:
                 labelnames = set()
                 time_series = {}
-                start = begin_teste_date
-                end_test_date = start + timedelta(seconds=(interval_int * 3600))
-                step_in_seconds = (interval_int / step) * 3600
+                start = begin_test_date
+                end_test_date = start + timedelta(seconds=interval_int)
+                step_in_seconds = (interval_int / step)
                 shift=timedelta(seconds=step_in_seconds)
                 for current_step in range(1, step + 1):
-                    
+
                     end = start + shift
                     if end > end_test_date:
                         end = end_test_date
-
                     response = s.get('{0}/api/v1/query_range'.format(sys.argv[1]), params={'query': metrixName, 'start': start.isoformat() + '.000Z', 'end': end.isoformat() + '.000Z', 'step': '1s'}, timeout=60)
+
                     results = response.json()['data']['result']
 
                     if current_step == 1:
