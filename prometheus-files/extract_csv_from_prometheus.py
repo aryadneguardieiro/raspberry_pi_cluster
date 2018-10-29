@@ -73,7 +73,7 @@ for metrixName in metrixNames:
             labelnames = set()
 
             for result in results:
-            labelnames.update(result['metric'].keys())
+                labelnames.update(result['metric'].keys())
 
             # Canonicalize
             labelnames.discard('__name__')
