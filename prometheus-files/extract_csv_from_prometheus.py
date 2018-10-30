@@ -74,66 +74,67 @@ if interval_int % step != 0:
     exit()
 
 for metrixName in metrixNames:
-    with open(path + '/' + metrixName + '.csv', 'w') as csvfile:
-        writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-        try:
-            offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
-            offset = offset / (-3600)
-            offsetFormatted = '.000' + convertToHourFormat(offset)
+	if '_bucket' not in metrixName:
+		with open(path + '/' + metrixName + '.csv', 'w') as csvfile:
+		    writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+		    try:
+		        offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
+		        offset = offset / (-3600)
+		        offsetFormatted = '.000' + convertToHourFormat(offset)
 
-            labelnames = set()
-            time_series = {}
-            start = begin_test_date
-            end_test_date = start + timedelta(seconds=interval_int)
-            step_in_seconds = (interval_int / step)
-            shift=timedelta(seconds=step_in_seconds)
-            for current_step in range(1, step + 1):
+		        labelnames = set()
+		        time_series = {}
+		        start = begin_test_date
+		        end_test_date = start + timedelta(seconds=interval_int)
+		        step_in_seconds = (interval_int / step)
+		        shift=timedelta(seconds=step_in_seconds)
+		        for current_step in range(1, step + 1):
 
-                end = start + shift
-                if end > end_test_date:
-                    end = end_test_date
-                response = s.get('{0}/api/v1/query_range'.format(sys.argv[1]), params={'query': metrixName, 'start': start.isoformat() + offsetFormatted, 'end': end.isoformat() + offsetFormatted, 'step': '1s'}, timeout=120)
+		            end = start + shift
+		            if end > end_test_date:
+		                end = end_test_date
+		            response = s.get('{0}/api/v1/query_range'.format(sys.argv[1]), params={'query': metrixName, 'start': start.isoformat() + offsetFormatted, 'end': end.isoformat() + offsetFormatted, 'step': '1s'}, timeout=120)
 
-                results = response.json()['data']['result']
-                if current_step == 1:
-                    for result in results:
-                        labelnames.update(result['metric'].keys())
+		            results = response.json()['data']['result']
+		            if current_step == 1:
+		                for result in results:
+		                    labelnames.update(result['metric'].keys())
 
-                    # Canonicalize
-                    labelnames.discard('__name__')
-                    labelnames = sorted(labelnames)
+		                # Canonicalize
+		                labelnames.discard('__name__')
+		                labelnames = sorted(labelnames)
 
-                    # Write the samples.
-                    writer.writerow(['name'] + labelnames + ['timestamp', 'value'])
+		                # Write the samples.
+		                writer.writerow(['name'] + labelnames + ['timestamp', 'value'])
 
-                for result in results:
-                    for value in result['values']:
-                        l = [result['metric'].get('__name__', '')]
-                        tag = result['metric'].get('__name__', '')
+		            for result in results:
+		                for value in result['values']:
+		                    l = [result['metric'].get('__name__', '')]
+		                    tag = result['metric'].get('__name__', '')
 
-                        for label in labelnames:
-                            l.append(result['metric'].get(label, ''))
-                            tag = tag +'_'+ result['metric'].get(label, '')
-                        l.append(value[0])
-                        l.append(value[1])
-                        writer.writerow(l)
+		                    for label in labelnames:
+		                        l.append(result['metric'].get(label, ''))
+		                        tag = tag +'_'+ result['metric'].get(label, '')
+		                    l.append(value[0])
+		                    l.append(value[1])
+		                    writer.writerow(l)
 
-                        if tag in time_series:
-                            if time_series[tag]['x'][-1] != value[0] and time_series[tag]['y'][-1] != value[1]:
-                                time_series[tag]['x'] = time_series[tag]['x'] + [value[0]]
-                                time_series[tag]['y'] = time_series[tag]['y'] + [value[1]]
-                        else:
-                            time_series[tag] = {'x': [value[0]], 'y': [value[1]]}
+		                    if tag in time_series:
+		                        if time_series[tag]['x'][-1] != value[0] and time_series[tag]['y'][-1] != value[1]:
+		                            time_series[tag]['x'] = time_series[tag]['x'] + [value[0]]
+		                            time_series[tag]['y'] = time_series[tag]['y'] + [value[1]]
+		                    else:
+		                        time_series[tag] = {'x': [value[0]], 'y': [value[1]]}
 
-                start = end + timedelta(seconds=1)
-                print("Step: " + str(current_step) + " concluido para a metrica: " + metrixName, end='\r')
+		            start = end + timedelta(seconds=1)
+		            print("Step: " + str(current_step) + " concluido para a metrica: " + metrixName, end='\r')
 
-            current = current + 1
-            percentage = current/total * 100
-            print("\n" + str(math.ceil(percentage)) + "% arquivos gerados (" +str(current) + "/" + str(total) + ")")
-        except Exception as e:
-            print("\nNao foi possivel gerar "+ metrixName)
-            print("Exception: ")
-            print(e)
-            percentage = current/total * 100
-            print(str(math.ceil(percentage)) + "% arquivos gerados (" +str(current) + "/" + str(total) + ")")
+		        current = current + 1
+		        percentage = current/total * 100
+		        print("\n" + str(math.ceil(percentage)) + "% arquivos gerados (" +str(current) + "/" + str(total) + ")")
+		    except Exception as e:
+		        print("\nNao foi possivel gerar "+ metrixName)
+		        print("Exception: ")
+		        print(e)
+		        percentage = current/total * 100
+		        print(str(math.ceil(percentage)) + "% arquivos gerados (" +str(current) + "/" + str(total) + ")")
