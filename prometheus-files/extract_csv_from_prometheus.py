@@ -8,6 +8,7 @@ import matplotlib
 import pdb
 import math
 import datetime
+import time
 from datetime import datetime
 from datetime import timedelta
 matplotlib.use('agg')
@@ -41,6 +42,12 @@ def get_hour_in_minutes(begin_hour_test):
 def get_minute(begin_hour_test):
     return (int(begin_hour_test.split(':')[1]))
 
+def convertToHourFormat(offsetParam):
+    hourFormat = '+' if (offsetParam > 0) else '-'
+    offset = abs(int(offsetParam))
+    hourFormat = hourFormat + str(offset).zfill(2) + ':00'
+    return hourFormat
+
 """
 Prometheus hourly data as csv.
 """
@@ -73,6 +80,10 @@ for metrixName in metrixNames[:1]:
             writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
 
             try:
+                offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
+                offset = offset / (-3600)
+                offsetFormatted = '.000' + convertToHourFormat(offset)
+                print(offsetFormatted)
                 labelnames = set()
                 time_series = {}
                 start = begin_test_date
@@ -84,7 +95,7 @@ for metrixName in metrixNames[:1]:
                     end = start + shift
                     if end > end_test_date:
                         end = end_test_date
-                    response = s.get('{0}/api/v1/query_range'.format(sys.argv[1]), params={'query': metrixName, 'start': start.isoformat() + '.000Z', 'end': end.isoformat() + '.000Z', 'step': '1s'}, timeout=60)
+                    response = s.get('{0}/api/v1/query_range'.format(sys.argv[1]), params={'query': metrixName, 'start': start.isoformat() + offsetFormatted, 'end': end.isoformat() + offsetFormatted, 'step': '1s'}, timeout=60)
 
                     results = response.json()['data']['result']
 
