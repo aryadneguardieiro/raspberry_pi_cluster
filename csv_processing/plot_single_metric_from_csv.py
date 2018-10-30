@@ -14,20 +14,20 @@ from matplotlib import rcParams
 rcParams['legend.fontsize'] = 'small'
 import matplotlib.dates as md
 
-if len(sys.argv) != 3:
-  print('Usage: {0} cvs_dir_path plot_dir_path'.format(sys.argv[0]))
+if len(sys.argv) != 4:
+  print('Usage: {0} cvs_dir_path plot_dir_path metric_name'.format(sys.argv[0]))
   sys.exit(1)
 
 cvs_dir_path = sys.argv[1]
 csv_list = glob.glob(cvs_dir_path+"/*.log")
 csv_list = csv_list + glob.glob(cvs_dir_path+"/*.csv")
 plot_dir_path = sys.argv[2]
+metric_name = sys.argv[3]
 
 for csv_file_name in csv_list:
   with open(csv_file_name) as csv_file:
     reader = csv.DictReader(csv_file)
     time_serie = {'x': [], 'y': []}
-    metric_name = 'framesDisplayedCalc'
 
     for row in reader:
       value = float(row.pop(metric_name))
@@ -47,6 +47,6 @@ for csv_file_name in csv_list:
     ax.xaxis_date()
     pyplot.xticks( rotation=25 )
     pyplot.title(metric_name)
-    file_name = os.path.join(plot_dir_path,metric_name + '.png')
+    file_name = os.path.join(plot_dir_path,metric_name + '_' + os.path.basename(csv_file_name).split('.')[0] + '.png')
     fig.savefig(file_name, bbox_extra_artists=(lgd,), bbox_inches='tight')
     pyplot.close(fig)

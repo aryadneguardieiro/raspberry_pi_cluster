@@ -17,14 +17,23 @@ output_file_name = sys.argv[4]
 file_counters = 0
 print("Numer of files to be processed: " + str(len(csv_list)))
 
-with open(y_file_name) as y_file:
-  reader = csv.DictReader(csv_file)
+with open('output_file_name.csv', 'w', newline='') as output_file:
+  spamwriter = csv.writer(output_file)
+
+
+
+  spamwriter.writerow(['Spam'] * 5 + ['Baked Beans'])
+
+
+  with open(y_file_name) as y_file:
+    reader = csv.DictReader(csv_file)
+
 
 
 for csv_file_name in csv_list:
   with open(csv_file_name) as csv_file:
     reader = csv.DictReader(csv_file)
-    time_series = {}
+
 
     for row in reader:
       value = float(row.pop('value'))
