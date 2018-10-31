@@ -74,7 +74,7 @@ if interval_int % step != 0:
     exit()
 
 for metrixName in metrixNames:
-    if '_bucket' not in metrixName:
+    if '_bucket' not in metrixName and '_summary' not in metrixName and '_count' not in metrixName and '_sum' not in metrixName:
         with open(path + '/' + metrixName + '.csv', 'w') as csvfile:
             writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
             try:
