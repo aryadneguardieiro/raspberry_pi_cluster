@@ -13,6 +13,16 @@ spec:
       labels:
         app: video-dash-internal-storage
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - video-dash-internal-storage
+            topologyKey: kubernetes.io/hostname
       containers:
       - name: video-dash-internal-storage
         image: httpd:2.4
