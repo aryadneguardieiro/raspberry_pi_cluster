@@ -52,8 +52,7 @@ spec:
   ports:
     - port: 8080
       targetPort: 80
-      nodePort: 31450
   selector:
     app: video-dash-internal-storage
-  type: NodePort
+  type: ClusterIP
 #---
