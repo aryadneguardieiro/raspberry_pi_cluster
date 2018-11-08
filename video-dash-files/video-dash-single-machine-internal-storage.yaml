@@ -2,7 +2,7 @@
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
-  name: video-dash
+  name: video-dash-single-machine-internal-storage
 spec:
   selector:
     matchLabels:
@@ -53,6 +53,8 @@ spec:
   ports:
     - port: 8080
       targetPort: 80
+      nodePort: 31313
+
   selector:
     app: video-dash-single-machine-internal-storage
-  type: ClusterIP
+  type: NodePort
