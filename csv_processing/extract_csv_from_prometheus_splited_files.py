@@ -36,6 +36,8 @@ def main():
   begin_test_hour=sys.argv[5]
   step=int(sys.argv[6])
 
+  pdb.set_trace()
+
   create_dir(destination_dir_path)
   data_folder = Path(destination_dir_path)
   start = datetime.strptime(begin_test_day + ' ' + begin_test_hour, "%d/%m/%y %H:%M:%S")
@@ -68,11 +70,10 @@ def main():
         #print("\n" + str(math.ceil(percentage)) + "% arquivos gerados (" +str(current) + "/" + str(total) + ")")
 
     except Exception as e:
-        print("\nNao foi possivel gerar "+ time_serie)
-        print("Exception: ")
-        print(e)
-        percentage = current/total * 100
-        print(str(math.ceil(percentage)) + "% arquivos gerados (" +str(current) + "/" + str(total) + ")")
+      print("\nNao foi possivel gerar "+ metric_name)
+      print("Exception: ")
+      print(e)
+
 def formart_start_end_time(start, duration):
   duration_int = int(duration) * getFormatInSeconds(time_unity)
   offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
@@ -87,8 +88,8 @@ def make_request(url, error_message, params={}):
   response = requests.get(url, params=params, timeout=120)
   data = response.json()['data']
 
-  if !response || response.status_code != requests.codes.ok || !data: 
-    print("error_message")]
+  if not response or response.status_code != requests.codes.ok or not data:
+    print("error_message")
     print("Url: " + url)
     print("Params: " + params)
     print("Response: ")
@@ -111,13 +112,13 @@ def get_metric_time_series(metric_name, start, end):
 def create_dir(destination_dir_path):
   try:
     shutil.rmtree(destination_dir_path)
-    except OSError:
-      print("Directory not deleted")
-    try:
-      os.mkdir(destination_dir_path)
-    except OSError:
-      print("Error at the creation of directory")
-      sys.exit(1)
+  except Exception as e:
+    print("Directory not deleted")
+  try:
+    os.mkdir(destination_dir_path)
+  except Exception as e:
+    print("Error at the creation of directory")
+    sys.exit(1)
 
 def get_hour_in_minutes(begin_test_hour):
   hour = int(begin_test_hour.split(':')[0])
