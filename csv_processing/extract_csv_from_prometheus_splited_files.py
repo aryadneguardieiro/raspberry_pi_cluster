@@ -38,16 +38,13 @@ def main():
   start_formated, end_formated = formart_start_end_time(start, duration, time_unity)
   metric_names=get_metrix_names(prometheus_url)
 
-  pdb.set_trace()
-
   for metric_name in metric_names:
     try:
       time_series = get_metric_time_series(prometheus_url, metric_name, start_formated, end_formated)
 
       for index, time_serie in enumerate(time_series):
         #open a new thread for processing each time serie?
-        time_serie_query_filter = create_query_filter(time_serie)
-        values = request_time_serie_values(time_serie_query_filter, start_formated, end_formated)
+        values = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated)
 
         file_name = metric_name + index + '.csv' # a concatenation is not used here because of the special chars that the values can have
         file_name = data_folder / file_name
@@ -61,9 +58,6 @@ def main():
             csv_row.append(timestamp)
             csv_row.append(value)
             writer.writerow(csv_row)
-
-        #percentage = current/total * 100
-        #print("\n" + str(math.ceil(percentage)) + "% arquivos gerados (" +str(current) + "/" + str(total) + ")")
 
     except Exception as e:
       print("\nNao foi possivel gerar "+ metric_name)
@@ -93,6 +87,16 @@ def make_request(url, error_message, params={}):
     sys.exit(1)
 
   return data
+
+def request_time_serie_values(url, time_serie, start, end):
+  endpoint = '{0}/api/v1/label/query_range'.format(url)
+  prometheus_query = str(time_serie).replace(':', '=').replace("'",'"')
+  params = {'query': prometheus_query, 'start': start, 'end': end }
+
+  pdb.set_trace()
+
+  return make_request(endpoint, "It wasn't possible to retrive time serie values", params)
+
 
 def get_metrix_names(url):
   endpoint = '{0}/api/v1/label/__name__/values'.format(url)
