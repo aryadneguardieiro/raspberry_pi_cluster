@@ -14,6 +14,8 @@ from datetime import timedelta
 matplotlib.use('agg')
 from matplotlib import pyplot
 from pathlib import Path
+if __name__ == "__main__":
+  main()
 
 # code based on:
 # https://www.robustperception.io/prometheus-query-results-as-csv and
@@ -37,7 +39,7 @@ def main():
   create_dir(destination_dir_path)
   data_folder = Path(destination_dir_path)
   start = datetime.strptime(begin_test_day + ' ' + begin_test_hour, "%d/%m/%y %H:%M:%S")
-  start_formated, end_formated = formart_start_end_time(start, duration)
+  start_formated, end_formated = formart_start_end_time(start, duration, time_unity)
   metric_names=get_metrix_names(prometheus_url)
 
   for metric_name in metric_names:
@@ -70,7 +72,7 @@ def main():
       print("Exception: ")
       print(e)
 
-def formart_start_end_time(start, duration):
+def formart_start_end_time(start, duration, time_unity):
   duration_int = int(duration) * getFormatInSeconds(time_unity)
   offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
   offset = offset / (-3600)
