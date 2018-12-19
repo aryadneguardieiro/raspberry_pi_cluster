@@ -14,8 +14,6 @@ from datetime import timedelta
 matplotlib.use('agg')
 from matplotlib import pyplot
 from pathlib import Path
-if __name__ == "__main__":
-  main()
 
 # code based on:
 # https://www.robustperception.io/prometheus-query-results-as-csv and
@@ -34,17 +32,17 @@ def main():
   begin_test_hour=sys.argv[5]
   step=int(sys.argv[6])
 
-  pdb.set_trace()
-
   create_dir(destination_dir_path)
   data_folder = Path(destination_dir_path)
   start = datetime.strptime(begin_test_day + ' ' + begin_test_hour, "%d/%m/%y %H:%M:%S")
   start_formated, end_formated = formart_start_end_time(start, duration, time_unity)
   metric_names=get_metrix_names(prometheus_url)
 
+  pdb.set_trace()
+
   for metric_name in metric_names:
     try:
-      time_series = get_metric_time_series(metric_name, start_formated, end_formated)
+      time_series = get_metric_time_series(prometheus_url, metric_name, start_formated, end_formated)
 
       for index, time_serie in enumerate(time_series):
         #open a new thread for processing each time serie?
@@ -101,11 +99,11 @@ def get_metrix_names(url):
 
   return make_request(endpoint, "It wasn't possible to get the metrics names.")
 
-def get_metric_time_series(metric_name, start, end):
+def get_metric_time_series(url, metric_name, start, end):
   endpoint = '{0}/api/v1/series'.format(url)
   request_params={'match[]': metric_name, 'start': start, 'end': end }
 
-  return requests.get(endpoint, "It wasn't possible to get the time series set.", params=request_params)
+  return make_request(endpoint, "It wasn't possible to get the time series set.", params=request_params)
 
 def create_dir(destination_dir_path):
   try:
