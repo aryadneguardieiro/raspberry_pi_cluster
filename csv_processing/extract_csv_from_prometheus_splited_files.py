@@ -19,10 +19,6 @@ from pathlib import Path
 # https://www.robustperception.io/prometheus-query-results-as-csv and
 # https://medium.com/@aneeshputtur/export-data-from-prometheus-to-csv-b19689d780aa
 
-
-if __name__ == "__main__":
-  main()
-
 def main():
   if len(sys.argv) != 7:
     print('Usage: {0} http://localhost:30000 duration(1m,2h,...) destination_dir_path begin_test_day (dd/mm/aa) begin_test_hour (hh:mm:ss) step'.format(sys.argv[0]))
@@ -143,7 +139,10 @@ def getFormatInSeconds(timeFormat):
 # time_series is a list like: [{{'metric': {label1: 'lala', ...}, 'value': [['timestamp', 'value'], ... ]}}]
 # so each time_serie is a dic containing metric's labels 'metric': {label1: 'lala', ...} 
 # and a list of tuples with timestamps and values [['timestamp', 'value'], ...]
-def request_time_serie_values()
+def request_time_serie_values():
   request_params = {'query': c_ntrixName, 'start': start_formated, 'end': end_formated, 'step': '1s'}
   response = s.get('{0}/api/v1/query_range'.format(sys.argv[1]), params=request_params, timeout=120)
   return response.json()['data']['result']['values']
+
+if __name__ == "__main__":
+  main()
