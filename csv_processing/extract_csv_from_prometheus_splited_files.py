@@ -91,11 +91,12 @@ def make_request(url, error_message, params={}):
 def request_time_serie_values(url, time_serie, start, end):
   endpoint = '{0}/api/v1/label/query_range'.format(url)
   prometheus_query = str(time_serie).replace(':', '=').replace("'",'"')
-  params = {'query': prometheus_query, 'start': start, 'end': end }
+  params = {'query': prometheus_query, 'start': start, 'end': end, 'step': '1s' }
 
   pdb.set_trace()
+  data = make_request(endpoint, "It wasn't possible to retrive time serie values", params)
 
-  return make_request(endpoint, "It wasn't possible to retrive time serie values", params)
+  return data
 
 
 def get_metrix_names(url):
@@ -139,14 +140,6 @@ def getFormatInSeconds(timeFormat):
   if timeFormat == 'm':
     return 60
   return 1
-
-# time_series is a list like: [{{'metric': {label1: 'lala', ...}, 'value': [['timestamp', 'value'], ... ]}}]
-# so each time_serie is a dic containing metric's labels 'metric': {label1: 'lala', ...} 
-# and a list of tuples with timestamps and values [['timestamp', 'value'], ...]
-def request_time_serie_values():
-  request_params = {'query': c_ntrixName, 'start': start_formated, 'end': end_formated, 'step': '1s'}
-  response = s.get('{0}/api/v1/query_range'.format(sys.argv[1]), params=request_params, timeout=120)
-  return response.json()['data']['result']['values']
 
 if __name__ == "__main__":
   main()
