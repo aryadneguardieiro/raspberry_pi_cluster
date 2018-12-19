@@ -90,10 +90,14 @@ def make_request(url, error_message, params={}):
 
 def request_time_serie_values(url, time_serie, start, end):
   endpoint = '{0}/api/v1/label/query_range'.format(url)
+
+  metric_name = time_serie.pop('__name__')
   prometheus_query = str(time_serie).replace(':', '=').replace("'",'"')
-  params = {'query': prometheus_query, 'start': start, 'end': end, 'step': '1s' }
+  prometheus_query = metric_name+prometheus_query
 
   pdb.set_trace()
+  params = {'query': prometheus_query, 'start': start, 'end': end, 'step': '1s' }
+
   data = make_request(endpoint, "It wasn't possible to retrive time serie values", params)
 
   return data
