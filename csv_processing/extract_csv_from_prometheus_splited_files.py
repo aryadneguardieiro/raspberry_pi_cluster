@@ -76,6 +76,9 @@ def formart_start_end_time(start, duration, time_unity):
 
 def make_request(url, error_message, params={}):
   response = requests.get(url, params=params, timeout=120)
+
+  pdb.set_trace()
+
   data = response.json()['data']
 
   if not response or response.status_code != requests.codes.ok or not data:
@@ -95,7 +98,6 @@ def request_time_serie_values(url, time_serie, start, end):
   prometheus_query = str(time_serie).replace(':', '=').replace("'",'"')
   prometheus_query = metric_name+prometheus_query
 
-  pdb.set_trace()
   params = {'query': prometheus_query, 'start': start, 'end': end, 'step': '1s' }
 
   data = make_request(endpoint, "It wasn't possible to retrive time serie values", params)
