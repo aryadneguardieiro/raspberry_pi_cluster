@@ -73,10 +73,6 @@ def main():
         print(e)
         percentage = current/total * 100
         print(str(math.ceil(percentage)) + "% arquivos gerados (" +str(current) + "/" + str(total) + ")")
-
-def create_query_filter(time_serie):
-  
-
 def formart_start_end_time(start, duration):
   duration_int = int(duration) * getFormatInSeconds(time_unity)
   offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
