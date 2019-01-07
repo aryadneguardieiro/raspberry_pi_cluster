@@ -50,7 +50,6 @@ def main():
         file_name = data_folder / file_name
 
         with open(str(file_name), 'w') as csvfile:
-          pdb.set_trace()
           results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated)
           result = results['result'][0]
           metric_info = result['metric']
