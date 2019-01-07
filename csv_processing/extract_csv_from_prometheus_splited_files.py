@@ -51,34 +51,26 @@ def main():
 
         with open(str(file_name), 'w') as csvfile:
           results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated)
-          result = results['result'][0]
-          metric_info = result['metric']
-          headers = [i for i in metric_info.keys()]
-          headers.sort()
-          fixed_values = [metric_info[key] for key in headers]
 
-          writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-          writer.writerow(headers + ['timestamp', 'value'])
+          if len(results) > 0 : 
+            result = results['result'][0]
+            metric_info = result['metric']
+            headers = [i for i in metric_info.keys()]
+            headers.sort()
+            fixed_values = [metric_info[key] for key in headers]
 
-          for value in result['values']:
-            csv_row = [] + fixed_values
-            csv_row = csv_row + value
-            writer.writerow(csv_row)
+            writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+            writer.writerow(headers + ['timestamp', 'value'])
+
+            for value in result['values']:
+              csv_row = [] + fixed_values
+              csv_row = csv_row + value
+              writer.writerow(csv_row)
 
     except Exception as e:
       print("\nNao foi possivel gerar "+ metric_name)
       print("Exception: ")
       print(e)
-
-def formart_start_end_time(start, duration, time_unity):
-  duration_int = int(duration) * getFormatInSeconds(time_unity)
-  offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
-  offset = offset / (-3600)
-  offsetFormatted = '.000' + convertToHourFormat(offset)
-  end_test_date = start + timedelta(seconds=duration_int)
-  start_formated = start.isoformat() + offsetFormatted
-  end_formated = end_test_date.isoformat() + offsetFormatted
-  return start_formated, end_formated
 
 def make_request(url, error_message, params={}):
   response = requests.get(url, params=params, timeout=120)
