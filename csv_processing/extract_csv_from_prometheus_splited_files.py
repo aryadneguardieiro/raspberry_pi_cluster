@@ -97,7 +97,7 @@ def request_time_serie_values(url, time_serie, start, end, step):
   endpoint = '{0}/api/v1/query_range'.format(url)
   metric_name = time_serie.pop('__name__')
   prometheus_query = create_prom_query(metric_name, time_serie)
-  params = {'query': prometheus_query, 'start': start, 'end': end, 'step': step + 's' }
+  params = {'query': prometheus_query, 'start': start, 'end': end, 'step': str(step) + 's' }
   data = make_request(endpoint, "It wasn't possible to retrive time serie values", params)
 
   return data
