@@ -36,7 +36,7 @@ def main():
   create_dir(destination_dir_path)
   data_folder = Path(destination_dir_path)
   start = datetime.strptime(begin_test_day + ' ' + begin_test_hour, "%d/%m/%y %H:%M:%S")
-  start_formated, end_formated = formart_start_end_time(start, duration, time_unity)
+  start_formated, end_formated = format_start_end_time(start, duration, time_unity)
   metric_names=get_metrix_names(prometheus_url)
 
   for metric_name in metric_names:
@@ -45,14 +45,13 @@ def main():
 
       for index, time_serie in enumerate(time_series):
         #open a new thread for processing each time serie?
+        results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated)
 
-        file_name = metric_name + str(index) + '.csv' # a concatenation is not used here because of the special chars that the values can have
-        file_name = data_folder / file_name
+        if 'result' in results && len(results['result']) > 0:
+          file_name = metric_name + str(index) + '.csv' # a concatenation is not used here because of the special chars that the values can have
+          file_name = data_folder / file_name
 
-        with open(str(file_name), 'w') as csvfile:
-          results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated)
-
-          if len(results) > 0 : 
+          with open(str(file_name), 'w') as csvfile:
             result = results['result'][0]
             metric_info = result['metric']
             headers = [i for i in metric_info.keys()]
@@ -71,6 +70,16 @@ def main():
       print("\nNao foi possivel gerar "+ metric_name)
       print("Exception: ")
       print(e)
+
+def format_start_end_time(start, duration, time_unity):
+  duration_int = int(duration) * getFormatInSeconds(time_unity)
+  offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
+  offset = offset / (-3600)
+  offsetFormatted = '.000' + convertToHourFormat(offset)
+  end_test_date = start + timedelta(seconds=duration_int)
+  start_formated = start.isoformat() + offsetFormatted
+  end_formated = end_test_date.isoformat() + offsetFormatted
+  return start_formated, end_formated
 
 def make_request(url, error_message, params={}):
   response = requests.get(url, params=params, timeout=120)
