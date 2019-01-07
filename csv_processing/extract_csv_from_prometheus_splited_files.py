@@ -14,6 +14,7 @@ from datetime import timedelta
 matplotlib.use('agg')
 from matplotlib import pyplot
 from pathlib import Path
+from functools import reduce
 
 # code based on:
 # https://www.robustperception.io/prometheus-query-results-as-csv and
@@ -53,7 +54,7 @@ def main():
           writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
           writer.writerow(['name', headers, 'timestamp', 'value'])
 
-          for timestamp,value in result['values']:
+          for timestamp,value in values['result']:
             csv_row.append(tag)
             csv_row.append(timestamp)
             csv_row.append(value)
@@ -93,17 +94,21 @@ def make_request(url, error_message, params={}):
 
 def request_time_serie_values(url, time_serie, start, end):
   endpoint = '{0}/api/v1/label/query_range'.format(url)
-
   metric_name = time_serie.pop('__name__')
-  prometheus_query = str(time_serie).replace(':', '=').replace("'",'"')
-  prometheus_query = metric_name+prometheus_query
-
+  prometheus_query = create_prom_query(metric_name, time_serie)
   params = {'query': prometheus_query, 'start': start, 'end': end, 'step': '1s' }
-
   data = make_request(endpoint, "It wasn't possible to retrive time serie values", params)
 
   return data
 
+def create_prom_query (metric_name, time_serie):
+  prometheus_query = ""
+  for label, value in time_serie.items():
+    pair = label.replace("'","") + "=" + '"' + value + '"'
+    prometheus_query = prometheus_query + pair + ","
+  prometheus_query = prometheus_query[0:len(prometheus_query) - 1]
+  prometheus_query = metric_name+ "{" + prometheus_query + "}"
+  return prometheus_query
 
 def get_metrix_names(url):
   endpoint = '{0}/api/v1/label/__name__/values'.format(url)
