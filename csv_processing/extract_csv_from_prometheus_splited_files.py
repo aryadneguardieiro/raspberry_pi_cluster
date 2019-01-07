@@ -46,10 +46,10 @@ def main():
       for index, time_serie in enumerate(time_series):
         #open a new thread for processing each time serie?
 
-        file_name = metric_name + index + '.csv' # a concatenation is not used here because of the special chars that the values can have
+        file_name = metric_name + str(index) + '.csv' # a concatenation is not used here because of the special chars that the values can have
         file_name = data_folder / file_name
 
-        with open(file_name, 'w') as csvfile:
+        with open(str(file_name), 'w') as csvfile:
           pdb.set_trace()
           results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated)
           result = results[0]
@@ -85,8 +85,6 @@ def formart_start_end_time(start, duration, time_unity):
 def make_request(url, error_message, params={}):
   response = requests.get(url, params=params, timeout=120)
   data = response.json()['data']
-
-  pdb.set_trace()
 
   if not response or response.status_code != requests.codes.ok or not data:
     raise Exception(error_message + "\nURL: " + url + "\nParams: " + params + "\nReponse: " + response)
