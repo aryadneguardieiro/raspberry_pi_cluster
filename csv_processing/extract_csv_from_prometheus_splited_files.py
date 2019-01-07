@@ -59,11 +59,10 @@ def main():
             fixed_values = [metric_info[key] for key in headers]
 
             writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-            writer.writerow(headers + ['timestamp', 'value'])
+            writer.writerow(['timestamp'] + headers + ['value'])
 
             for value in result['values']:
-              csv_row = [] + fixed_values
-              csv_row = csv_row + value
+              csv_row = [value[0]] + fixed_values +  [value[1]]
               writer.writerow(csv_row)
 
     except Exception as e:
