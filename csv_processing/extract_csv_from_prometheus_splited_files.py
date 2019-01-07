@@ -77,23 +77,17 @@ def formart_start_end_time(start, duration, time_unity):
 
 def make_request(url, error_message, params={}):
   response = requests.get(url, params=params, timeout=120)
+  data = response.json()['data']
 
   pdb.set_trace()
 
-  data = response.json()['data']
-
   if not response or response.status_code != requests.codes.ok or not data:
-    print("error_message")
-    print("Url: " + url)
-    print("Params: " + params)
-    print("Response: ")
-    print(response)
-    sys.exit(1)
+    raise Exception(error_message + "\nURL: " + url + "\nParams: " + params + "\nReponse: " + response)
 
   return data
 
 def request_time_serie_values(url, time_serie, start, end):
-  endpoint = '{0}/api/v1/label/query_range'.format(url)
+  endpoint = '{0}/api/v1/query_range'.format(url)
   metric_name = time_serie.pop('__name__')
   prometheus_query = create_prom_query(metric_name, time_serie)
   params = {'query': prometheus_query, 'start': start, 'end': end, 'step': '1s' }
