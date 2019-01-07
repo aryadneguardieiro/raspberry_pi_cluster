@@ -45,17 +45,23 @@ def main():
 
       for index, time_serie in enumerate(time_series):
         #open a new thread for processing each time serie?
-        values = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated)
+        result = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated)
 
         file_name = metric_name + index + '.csv' # a concatenation is not used here because of the special chars that the values can have
         file_name = data_folder / file_name
 
         with open(file_name, 'w') as csvfile:
+          metric_info = result[0]['metric']
+          headers = [i for i in metric_info.keys()]
+          headers.sort()
+          fixed_values = [metric_info[key] for key in headers]
+
           writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-          writer.writerow(['name', headers, 'timestamp', 'value'])
+          writer.writerow([headers, 'timestamp', 'value'])
 
           for timestamp,value in values['result']:
-            csv_row.append(tag)
+            csv_row = []
+            csv_row.append(fixed_values)
             csv_row.append(timestamp)
             csv_row.append(value)
             writer.writerow(csv_row)
