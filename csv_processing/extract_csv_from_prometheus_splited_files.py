@@ -47,7 +47,7 @@ def main():
         #open a new thread for processing each time serie?
         results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated)
 
-        if 'result' in results && len(results['result']) > 0:
+        if 'result' in results and len(results['result']) > 0:
           file_name = metric_name + str(index) + '.csv' # a concatenation is not used here because of the special chars that the values can have
           file_name = data_folder / file_name
 
