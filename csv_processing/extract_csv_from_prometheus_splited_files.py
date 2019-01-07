@@ -64,7 +64,8 @@ def main():
           for value in result['values']:
             csv_row = []
             csv_row.append(fixed_values)
-            csv_row.append(value)
+            csv_row.append(value[0])
+            csv_row.append(value[1])
             writer.writerow(csv_row)
 
     except Exception as e:
