@@ -38,14 +38,18 @@ def main():
   start = datetime.strptime(begin_test_day + ' ' + begin_test_hour, "%d/%m/%y %H:%M:%S")
   start_formated, end_formated = format_start_end_time(start, duration, time_unity)
   metric_names=get_metrix_names(prometheus_url)
-
+  metric_count = 0
+  
   for metric_name in metric_names:
     try:
+      metric_count = metric_count + 1 
+      print("Metrics already generated: {0} of {1}".format(metric_count, len(metric_names)))
+
       time_series = get_metric_time_series(prometheus_url, metric_name, start_formated, end_formated)
 
       for index, time_serie in enumerate(time_series):
         #open a new thread for processing each time serie?
-        results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated)
+        results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
 
         if 'result' in results and len(results['result']) > 0:
           file_name = metric_name + str(index) + '.csv' # a concatenation is not used here because of the special chars that the values can have
@@ -89,11 +93,11 @@ def make_request(url, error_message, params={}):
 
   return data
 
-def request_time_serie_values(url, time_serie, start, end):
+def request_time_serie_values(url, time_serie, start, end, step):
   endpoint = '{0}/api/v1/query_range'.format(url)
   metric_name = time_serie.pop('__name__')
   prometheus_query = create_prom_query(metric_name, time_serie)
-  params = {'query': prometheus_query, 'start': start, 'end': end, 'step': '1s' }
+  params = {'query': prometheus_query, 'start': start, 'end': end, 'step': step + 's' }
   data = make_request(endpoint, "It wasn't possible to retrive time serie values", params)
 
   return data
