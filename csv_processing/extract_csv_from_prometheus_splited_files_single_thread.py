@@ -52,7 +52,7 @@ def main():
       map_file_name = "time_series_map.csv"
       map_file_name = data_folder / map_file_name
 
-      with open(map_file_name, 'w') as time_series_map:
+      with open(str(map_file_name), 'w') as time_series_map:
         for index, time_serie in enumerate(time_series):
           results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
 
