@@ -56,7 +56,7 @@ def main():
           if 'result' in results and len(results['result']) > 0:
             result = results['result'][0]
           else:
-            raise Exception("result with unknwon form: {0}".format(str(result)))
+            raise Exception("result with unknown format: {0}".format(str(results)))
 
           if 'metric' in result and 'values' in result and len(result['values']) > 0 : 
             metric_info = str(result['metric'])
