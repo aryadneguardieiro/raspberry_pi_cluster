@@ -70,11 +70,9 @@ def main():
             for value in result['values']:
               csv_row = [value[0]] + static_values +  [value[1]]
               writer.writerow(csv_row)
-
-      metric_count = metric_count + 1 
-
         else:
           print("Invalid result for metric: {0}. Result: {1}".format(metric_name, str(result)))
+      metric_count = metric_count + 1 
 
     except Exception as e:
       print("\nNao foi possivel gerar "+ metric_name)
