@@ -59,7 +59,6 @@ def main():
             raise Exception("result with unknwon form: {0}".format(str(result)))
 
           if 'metric' in result and 'values' in result and len(result['values']) > 0 : 
-            pdb.set_trace()
             metric_info = str(result['metric'])
             hash_object = hashlib.sha1(metric_info.encode())
             time_serie_hash_id = hash_object.hexdigest()
