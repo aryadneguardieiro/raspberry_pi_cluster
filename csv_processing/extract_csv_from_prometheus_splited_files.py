@@ -36,44 +36,45 @@ def main():
   create_dir(destination_dir_path)
   data_folder = Path(destination_dir_path)
   start = datetime.strptime(begin_test_day + ' ' + begin_test_hour, "%d/%m/%y %H:%M:%S")
-  start_formated, end_formated = formart_start_end_time(start, duration, time_unity)
+  start_formated, end_formated = format_start_end_time(start, duration, time_unity)
   metric_names=get_metrix_names(prometheus_url)
-
+  metric_count = 0
+  
   for metric_name in metric_names:
     try:
+      metric_count = metric_count + 1 
+      print("Metrics already generated: {0} of {1}".format(metric_count, len(metric_names)))
+
       time_series = get_metric_time_series(prometheus_url, metric_name, start_formated, end_formated)
 
       for index, time_serie in enumerate(time_series):
         #open a new thread for processing each time serie?
+        results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
 
-        file_name = metric_name + str(index) + '.csv' # a concatenation is not used here because of the special chars that the values can have
-        file_name = data_folder / file_name
+        if 'result' in results and len(results['result']) > 0:
+          file_name = metric_name + str(index) + '.csv' # a concatenation is not used here because of the special chars that the values can have
+          file_name = data_folder / file_name
 
-        with open(str(file_name), 'w') as csvfile:
-          pdb.set_trace()
-          results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated)
-          result = results['result'][0]
-          metric_info = result['metric']
-          headers = [i for i in metric_info.keys()]
-          headers.sort()
-          fixed_values = [metric_info[key] for key in headers]
+          with open(str(file_name), 'w') as csvfile:
+            result = results['result'][0]
+            metric_info = result['metric']
+            headers = [i for i in metric_info.keys()]
+            headers.sort()
+            fixed_values = [metric_info[key] for key in headers]
 
-          writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-          writer.writerow([headers, 'timestamp', 'value'])
+            writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+            writer.writerow(['timestamp'] + headers + ['value'])
 
-          for value in result['values']:
-            csv_row = []
-            csv_row.append(fixed_values)
-            csv_row.append(value[0])
-            csv_row.append(value[1])
-            writer.writerow(csv_row)
+            for value in result['values']:
+              csv_row = [value[0]] + fixed_values +  [value[1]]
+              writer.writerow(csv_row)
 
     except Exception as e:
       print("\nNao foi possivel gerar "+ metric_name)
       print("Exception: ")
       print(e)
 
-def formart_start_end_time(start, duration, time_unity):
+def format_start_end_time(start, duration, time_unity):
   duration_int = int(duration) * getFormatInSeconds(time_unity)
   offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
   offset = offset / (-3600)
@@ -92,11 +93,11 @@ def make_request(url, error_message, params={}):
 
   return data
 
-def request_time_serie_values(url, time_serie, start, end):
+def request_time_serie_values(url, time_serie, start, end, step):
   endpoint = '{0}/api/v1/query_range'.format(url)
   metric_name = time_serie.pop('__name__')
   prometheus_query = create_prom_query(metric_name, time_serie)
-  params = {'query': prometheus_query, 'start': start, 'end': end, 'step': '1s' }
+  params = {'query': prometheus_query, 'start': start, 'end': end, 'step': str(step) + 's' }
   data = make_request(endpoint, "It wasn't possible to retrive time serie values", params)
 
   return data
