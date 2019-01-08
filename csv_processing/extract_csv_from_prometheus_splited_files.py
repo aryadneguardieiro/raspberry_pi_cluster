@@ -50,7 +50,7 @@ def main():
       time_series = get_metric_time_series(prometheus_url, metric_name, start_formated, end_formated)
 
       for index, time_serie in enumerate(time_series):
-        thread.start_new_thread(generate_time_serie_csv, (prometheus_url, time_serie, start_formated, end_formated, step, metric_name, index, data_folder))
+        _thread.start_new_thread(generate_time_serie_csv, (prometheus_url, time_serie, start_formated, end_formated, step, metric_name, index, data_folder))
 
     except Exception as e:
       print("\nNao foi possivel gerar "+ metric_name)
