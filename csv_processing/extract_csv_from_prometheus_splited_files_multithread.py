@@ -64,9 +64,6 @@ def generate_time_serie_csv(prometheus_url, time_serie, start_formated, end_form
 
     if 'result' in results and len(results['result']) > 0:
       result = results['result'][0]
-    elif 'result' in results:
-      result = results['result']
-      print("Single results: {0}".format(str(results)))
     else:
       raise Exception("result with unknwon form: {0}".format(str(result)))
 

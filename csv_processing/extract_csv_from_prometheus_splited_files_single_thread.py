@@ -15,6 +15,7 @@ matplotlib.use('agg')
 from matplotlib import pyplot
 from pathlib import Path
 from functools import reduce
+import hashlib
 
 # code based on:
 # https://www.robustperception.io/prometheus-query-results-as-csv and
@@ -48,48 +49,40 @@ def main():
 
       time_series = get_metric_time_series(prometheus_url, metric_name, start_formated, end_formated)
 
-      for index, time_serie in enumerate(time_series):
-        generate_time_serie_csv(prometheus_url, time_serie, start_formated, end_formated, step, metric_name, index, data_folder)
-      metric_count = metric_count + 1 
+      with open("time_series_map.csv", 'w') as time_series_map:
+        for index, time_serie in enumerate(time_series):
+          results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
+
+          if 'result' in results and len(results['result']) > 0:
+            result = results['result'][0]
+          else:
+            raise Exception("result with unknwon form: {0}".format(str(result)))
+
+          if 'metric' in result and 'values' in result and len(result['values']) > 0 : 
+            metric_info = str(result['metric'])
+            hash_object = hashlib.sha1(metric_info.encode())
+            time_serie_hash_id = hash_object.hexdigest()
+
+            writer_file_map = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+            writer_file_map.writerow([metric_info, time_serie_hash_id])
+
+            file_name = time_serie_hash_id + '.csv'
+            file_name = data_folder / file_name
+
+            with open(str(file_name), 'w') as csvfile:
+              writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+              writer.writerow(['timestamp', 'value'])
+
+              for value in result['values']:
+                writer.writerow(value)
+
+        metric_count = metric_count + 1 
 
     except Exception as e:
       print("\nNao foi possivel gerar "+ metric_name)
       print("Exception: ")
       print(e)
 
-def generate_time_serie_csv(prometheus_url, time_serie, start_formated, end_formated, step, metric_name, index, data_folder):
-  try:
-    results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
-
-    if 'result' in results and len(results['result']) > 0:
-      result = results['result'][0]
-    elif 'result' in results:
-      result = results['result']
-      print("Single results: {0}".format(str(results)))
-    else:
-      raise Exception("result with unknwon form: {0}".format(str(result)))
-
-    if 'metric' in result and 'values' in result: 
-      file_name = metric_name + str(index) + '.csv'
-      file_name = data_folder / file_name
-
-      with open(str(file_name), 'w') as csvfile:
-        metric_info = result['metric']
-        headers = [i for i in metric_info.keys()]
-        headers.sort()
-        static_values = [metric_info[key] for key in headers]
-
-        writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow(['timestamp'] + headers + ['value'])
-
-        for value in result['values']:
-          csv_row = [value[0]] + static_values +  [value[1]]
-          writer.writerow(csv_row)
-
-  except Exception as e:
-    print("\nNao foi possivel gerar "+ metric_name+str(index))
-    print("Exception: ")
-    print(e)
 
 def format_start_end_time(start, duration, time_unity):
   duration_int = int(duration) * getFormatInSeconds(time_unity)
