@@ -51,11 +51,11 @@ def main():
         #open a new thread for processing each time serie?
         results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
 
-        if isinstance(results, list):
+        if 'result' in results:
           result = results['result'][0]
         else:
           result = results
-        
+
         if 'metric' in result and 'values' in result: 
           file_name = metric_name + str(index) + '.csv' # a concatenation is not used here because of the special chars that the values can have
           file_name = data_folder / file_name
