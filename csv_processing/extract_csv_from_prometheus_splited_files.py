@@ -53,6 +53,7 @@ def main():
           result = results['result'][0]
         elif 'result' in results:
           result = results['result']
+          print("Single results: {0}".format(str(results)))
         else:
           raise Exception("result with unknwon form: {0}".format(str(result)))
 
