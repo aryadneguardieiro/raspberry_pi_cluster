@@ -49,10 +49,12 @@ def main():
       for index, time_serie in enumerate(time_series):
         results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
 
-        if 'result' in results:
+        if 'result' in results and len(results['result']) > 0:
           result = results['result'][0]
-        else:
+        elif 'result' in results:
           result = results['result']
+        else:
+          raise Exception("result with unknwon form: {0}".format(str(result)))
 
         if 'metric' in result and 'values' in result: 
           file_name = metric_name + str(index) + '.csv'
