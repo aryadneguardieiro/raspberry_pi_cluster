@@ -15,6 +15,7 @@ matplotlib.use('agg')
 from matplotlib import pyplot
 from pathlib import Path
 from functools import reduce
+import thread
 
 # code based on:
 # https://www.robustperception.io/prometheus-query-results-as-csv and
@@ -49,7 +50,7 @@ def main():
       time_series = get_metric_time_series(prometheus_url, metric_name, start_formated, end_formated)
 
       for index, time_serie in enumerate(time_series):
-        generate_time_serie_csv(prometheus_url, time_serie, start_formated, end_formated, step, metric_name, index, data_folder)
+        thread.start_new_thread(generate_time_serie_csv, (prometheus_url, time_serie, start_formated, end_formated, step, metric_name, index, data_folder))
 
     except Exception as e:
       print("\nNao foi possivel gerar "+ metric_name)
