@@ -49,7 +49,9 @@ def main():
 
       time_series = get_metric_time_series(prometheus_url, metric_name, start_formated, end_formated)
 
-      with open("time_series_map.csv", 'w') as time_series_map:
+      map_file_name = data_folder / "time_series_map.csv"
+
+      with open(map_file_name, 'w') as time_series_map:
         for index, time_serie in enumerate(time_series):
           results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
 
@@ -64,7 +66,7 @@ def main():
             time_serie_hash_id = hash_object.hexdigest()
 
             writer_file_map = csv.writer(time_series_map, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-            writer_file_map.writerow([metric_info, time_serie_hash_id])
+            writer_file_map.writerow([time_serie_hash_id, metric_info])
 
             file_name = time_serie_hash_id + '.csv'
             file_name = data_folder / file_name
