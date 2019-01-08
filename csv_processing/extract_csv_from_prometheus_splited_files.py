@@ -42,44 +42,39 @@ def main():
   
   for metric_name in metric_names:
     try:
-      metric_count = metric_count + 1 
       print("Metrics already generated: {0} of {1}".format(metric_count, len(metric_names)))
 
       time_series = get_metric_time_series(prometheus_url, metric_name, start_formated, end_formated)
 
-      results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
-
-      if 'result' in results:
-        result = results['result'][0]
-      else:
-        result = results['result']
-
-      if 'metric' in result and 'values' in result: 
-        file_name = metric_name + str(index) + '.csv'
-        file_name = data_folder / file_name
-
-        with open(str(file_name), 'w') as csvfile:
-          metric_info = result['metric']
-          headers = [i for i in metric_info.keys()]
-          headers.sort()
-          static_values = [metric_info[key] for key in headers]
-
-          writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-          writer.writerow(['timestamp'] + headers + ['value'])
-
-          for value in result['values']:
-            csv_row = [value[0]] + static_values +  [value[1]]
-            writer.writerow(csv_row)
-
-      else:
-        print("Invalid result for metric: {0}. Result: {1}".format(metric_name, str(result)))
-
-
       for index, time_serie in enumerate(time_series):
-        parameters = {'prometheus_url': prometheus_url, 'time_serie': time_serie, 'start_formated': start_formated,
-          'end_formated': end_formated, 'step': step, 'data_folder': data_folder}
+        results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
 
-        create_csv_file(parameters)
+        if 'result' in results:
+          result = results['result'][0]
+        else:
+          result = results['result']
+
+        if 'metric' in result and 'values' in result: 
+          file_name = metric_name + str(index) + '.csv'
+          file_name = data_folder / file_name
+
+          with open(str(file_name), 'w') as csvfile:
+            metric_info = result['metric']
+            headers = [i for i in metric_info.keys()]
+            headers.sort()
+            static_values = [metric_info[key] for key in headers]
+
+            writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+            writer.writerow(['timestamp'] + headers + ['value'])
+
+            for value in result['values']:
+              csv_row = [value[0]] + static_values +  [value[1]]
+              writer.writerow(csv_row)
+
+            metric_count = metric_count + 1 
+
+        else:
+          print("Invalid result for metric: {0}. Result: {1}".format(metric_name, str(result)))
 
     except Exception as e:
       print("\nNao foi possivel gerar "+ metric_name)
