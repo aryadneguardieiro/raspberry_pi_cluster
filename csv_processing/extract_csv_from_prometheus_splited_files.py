@@ -20,6 +20,8 @@ from functools import reduce
 # https://www.robustperception.io/prometheus-query-results-as-csv and
 # https://medium.com/@aneeshputtur/export-data-from-prometheus-to-csv-b19689d780aa
 
+metric_count = 0
+
 def main():
   if len(sys.argv) != 7:
     print('Usage: {0} http://localhost:30000 duration(1m,2h,...) destination_dir_path begin_test_day (dd/mm/aa) begin_test_hour (hh:mm:ss) step'.format(sys.argv[0]))
@@ -38,49 +40,52 @@ def main():
   start = datetime.strptime(begin_test_day + ' ' + begin_test_hour, "%d/%m/%y %H:%M:%S")
   start_formated, end_formated = format_start_end_time(start, duration, time_unity)
   metric_names=get_metrix_names(prometheus_url)
-  metric_count = 0
+
   
   for metric_name in metric_names:
     try:
-      print("Metrics already generated: {0} of {1}".format(metric_count, len(metric_names)))
+      print("Metrics already evaluated: {0} of {1}".format(metric_count, len(metric_names)))
 
       time_series = get_metric_time_series(prometheus_url, metric_name, start_formated, end_formated)
 
       for index, time_serie in enumerate(time_series):
-        results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
-
-        if 'result' in results and len(results['result']) > 0:
-          result = results['result'][0]
-        elif 'result' in results:
-          result = results['result']
-          print("Single results: {0}".format(str(results)))
-        else:
-          raise Exception("result with unknwon form: {0}".format(str(result)))
-
-        if 'metric' in result and 'values' in result: 
-          file_name = metric_name + str(index) + '.csv'
-          file_name = data_folder / file_name
-
-          with open(str(file_name), 'w') as csvfile:
-            metric_info = result['metric']
-            headers = [i for i in metric_info.keys()]
-            headers.sort()
-            static_values = [metric_info[key] for key in headers]
-
-            writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-            writer.writerow(['timestamp'] + headers + ['value'])
-
-            for value in result['values']:
-              csv_row = [value[0]] + static_values +  [value[1]]
-              writer.writerow(csv_row)
-        else:
-          print("Invalid result for metric: {0}. Result: {1}".format(metric_name, str(result)))
-      metric_count = metric_count + 1 
+        generate_time_serie_csv(prometheus_url, time_serie, start_formated, end_formated, step, metric_name, data_folder)
 
     except Exception as e:
       print("\nNao foi possivel gerar "+ metric_name)
       print("Exception: ")
       print(e)
+
+def generate_time_serie_csv(prometheus_url, time_serie, start_formated, end_formated, step, metric_name, data_folder):
+  results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
+
+  if 'result' in results and len(results['result']) > 0:
+    result = results['result'][0]
+  elif 'result' in results:
+    result = results['result']
+    print("Single results: {0}".format(str(results)))
+  else:
+    raise Exception("result with unknwon form: {0}".format(str(result)))
+
+  if 'metric' in result and 'values' in result: 
+    file_name = metric_name + str(index) + '.csv'
+    file_name = data_folder / file_name
+
+    with open(str(file_name), 'w') as csvfile:
+      metric_info = result['metric']
+      headers = [i for i in metric_info.keys()]
+      headers.sort()
+      static_values = [metric_info[key] for key in headers]
+
+      writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+      writer.writerow(['timestamp'] + headers + ['value'])
+
+      for value in result['values']:
+        csv_row = [value[0]] + static_values +  [value[1]]
+        writer.writerow(csv_row)
+
+  global metric_count
+  metric_count = metric_count + 1 
 
 def format_start_end_time(start, duration, time_unity):
   duration_int = int(duration) * getFormatInSeconds(time_unity)
