@@ -51,7 +51,12 @@ def main():
         #open a new thread for processing each time serie?
         results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
 
-        if 'result' in results and len(results['result']) > 0:
+        if isinstance(results, list):
+          result = results['result'][0]
+        else:
+          result = results
+        
+        if 'metric' in result and 'values' in result: 
           file_name = metric_name + str(index) + '.csv' # a concatenation is not used here because of the special chars that the values can have
           file_name = data_folder / file_name
 
@@ -69,7 +74,7 @@ def main():
               csv_row = [value[0]] + fixed_values +  [value[1]]
               writer.writerow(csv_row)
         else:
-          print("File not generated for {0} result: {1}".format(metric_name + str(index), str(result)))
+          print("Invalid result for metric: {0}. Result: {1}".format(metric_name, str(result)))
 
     except Exception as e:
       print("\nNao foi possivel gerar "+ metric_name)
