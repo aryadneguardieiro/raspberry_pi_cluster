@@ -49,14 +49,14 @@ def main():
       time_series = get_metric_time_series(prometheus_url, metric_name, start_formated, end_formated)
 
       for index, time_serie in enumerate(time_series):
-        generate_time_serie_csv(prometheus_url, time_serie, start_formated, end_formated, step, metric_name, data_folder)
+        generate_time_serie_csv(prometheus_url, time_serie, start_formated, end_formated, step, metric_name, index, data_folder)
 
     except Exception as e:
       print("\nNao foi possivel gerar "+ metric_name)
       print("Exception: ")
       print(e)
 
-def generate_time_serie_csv(prometheus_url, time_serie, start_formated, end_formated, step, metric_name, data_folder):
+def generate_time_serie_csv(prometheus_url, time_serie, start_formated, end_formated, step, metric_name, index, data_folder):
   results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
 
   if 'result' in results and len(results['result']) > 0:
