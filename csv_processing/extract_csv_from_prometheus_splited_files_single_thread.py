@@ -50,7 +50,7 @@ def main():
 
       for index, time_serie in enumerate(time_series):
         generate_time_serie_csv(prometheus_url, time_serie, start_formated, end_formated, step, metric_name, index, data_folder)
-        metric_count = metric_count + 1 
+      metric_count = metric_count + 1 
 
     except Exception as e:
       print("\nNao foi possivel gerar "+ metric_name)
