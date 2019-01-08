@@ -68,6 +68,8 @@ def main():
             for value in result['values']:
               csv_row = [value[0]] + fixed_values +  [value[1]]
               writer.writerow(csv_row)
+          else:
+            print("File not generated for {0} result: {1}".format(metric_name + str(index), str(result)))
 
     except Exception as e:
       print("\nNao foi possivel gerar "+ metric_name)
