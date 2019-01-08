@@ -59,11 +59,12 @@ def main():
             raise Exception("result with unknwon form: {0}".format(str(result)))
 
           if 'metric' in result and 'values' in result and len(result['values']) > 0 : 
+            pdb.set_trace()
             metric_info = str(result['metric'])
             hash_object = hashlib.sha1(metric_info.encode())
             time_serie_hash_id = hash_object.hexdigest()
 
-            writer_file_map = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+            writer_file_map = csv.writer(time_series_map, delimiter=',', quoting=csv.QUOTE_MINIMAL)
             writer_file_map.writerow([metric_info, time_serie_hash_id])
 
             file_name = time_serie_hash_id + '.csv'
