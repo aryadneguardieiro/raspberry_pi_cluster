@@ -61,17 +61,16 @@ def main():
           file_name = data_folder / file_name
 
           with open(str(file_name), 'w') as csvfile:
-            result = results['result'][0]
             metric_info = result['metric']
             headers = [i for i in metric_info.keys()]
             headers.sort()
-            fixed_values = [metric_info[key] for key in headers]
+            static_values = [metric_info[key] for key in headers]
 
             writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
             writer.writerow(['timestamp'] + headers + ['value'])
 
             for value in result['values']:
-              csv_row = [value[0]] + fixed_values +  [value[1]]
+              csv_row = [value[0]] + static_values +  [value[1]]
               writer.writerow(csv_row)
         else:
           print("Invalid result for metric: {0}. Result: {1}".format(metric_name, str(result)))
