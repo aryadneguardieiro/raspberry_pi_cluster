@@ -49,7 +49,7 @@ def main():
 
       time_series = get_metric_time_series(prometheus_url, metric_name, start_formated, end_formated)
 
-      map_file_name = "time_series_map.csv"
+      map_file_name = "time_series_map.txt"
       map_file_name = data_folder / map_file_name
 
       with open(str(map_file_name), 'w') as time_series_map:
