@@ -4,7 +4,6 @@ import requests
 import sys
 import os # mkdir
 import shutil # rmtree
-import matplotlib
 import pdb
 import math
 import datetime
