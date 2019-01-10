@@ -62,22 +62,31 @@ def main():
             raise Exception("result with unknown format: {0}".format(str(results)))
 
           if 'metric' in result and 'values' in result and len(result['values']) > 0 : 
-            metric_info = str(result['metric'])
-            hash_object = hashlib.sha1(metric_info.encode())
-            time_serie_hash_id = hash_object.hexdigest()
+            first_value=result['values'][0][1]
+            print_values=false
 
-            writer_file_map = csv.writer(time_series_map, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-            writer_file_map.writerow([time_serie_hash_id, metric_info])
+            for value in result['values']:
+              if value[1] != first_value: 
+                  print_values=true
+                  break
 
-            file_name = time_serie_hash_id + '.csv'
-            file_name = data_folder / file_name
+            if print_values:
+              metric_info = str(result['metric'])
+              hash_object = hashlib.sha1(metric_info.encode())
+              time_serie_hash_id = hash_object.hexdigest()
 
-            with open(str(file_name), 'w') as csvfile:
-              writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-              writer.writerow(['timestamp', 'value'])
+              writer_file_map = csv.writer(time_series_map, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+              writer_file_map.writerow([time_serie_hash_id, metric_info])
 
-              for value in result['values']:
-                writer.writerow(value)
+              file_name = time_serie_hash_id + '.csv'
+              file_name = data_folder / file_name
+
+              with open(str(file_name), 'w') as csvfile:
+                writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+                writer.writerow(['timestamp', 'value'])
+
+                for value in result['values']:
+                  writer.writerow(value)
 
         metric_count = metric_count + 1 
 
