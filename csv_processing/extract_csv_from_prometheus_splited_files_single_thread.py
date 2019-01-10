@@ -60,11 +60,11 @@ def main():
 
           if 'metric' in result and 'values' in result and len(result['values']) > 0 : 
             first_value=result['values'][0][1]
-            print_values=false
+            print_values=False
 
             for value in result['values']:
               if value[1] != first_value: 
-                  print_values=true
+                  print_values=True
                   break
 
             if print_values:
