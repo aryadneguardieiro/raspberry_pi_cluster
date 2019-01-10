@@ -11,7 +11,6 @@ import datetime
 import time
 from datetime import datetime
 from datetime import timedelta
-matplotlib.use('agg')
 from pathlib import Path
 from functools import reduce
 import hashlib
