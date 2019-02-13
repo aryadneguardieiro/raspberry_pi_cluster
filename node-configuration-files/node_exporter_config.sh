@@ -26,7 +26,7 @@ if [ "$?" -eq "0" ]; then
 			sudo systemctl daemon-reload;
 			sudo systemctl start node_exporter;
 			rm -r ./node_exporter-0.17.0.linux-amd64;
-			echo "Configuracao feita com sucesso. Execute \"sudo systemctl status node_exporter\" para ver o status do servico.";
+			echo -e "Configuracao feita com sucesso. Execute \"sudo systemctl status node_exporter\" para ver o status do servico.\nSe estiver tudo certo, atualize o config_map do prometheus com o IP: $(hostname -I)";
 			exit 0;
 		fi
 	fi
