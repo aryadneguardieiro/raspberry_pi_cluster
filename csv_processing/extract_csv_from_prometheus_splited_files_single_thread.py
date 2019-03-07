@@ -87,12 +87,12 @@ def main():
                 for value in result['values']:
                   writer.writerow(value)
 
-   					except Exception as e:
-  		   			print("\n "+ metric_name)
-     					print("Result: \n"+str(result))
-		     			print("Exception: ")
-				     	print(e)
-    					print(traceback.format_exc())
+          except Exception as e:
+          print("\n "+ metric_name)
+          print("Result: \n"+str(result))
+          print("Exception: ")
+          print(e)
+          print(traceback.format_exc())
 
         metric_count = metric_count + 1
 
