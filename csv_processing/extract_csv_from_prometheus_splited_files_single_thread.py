@@ -58,7 +58,7 @@ def main():
           if 'result' in results and len(results['result']) > 0:
             result = results['result'][0]
           else:
-            raise Exception("Metric {0} returning result with unknown format for the time serie {1}: {2}\n".format(metric_name, str(time_serie),str(results)))
+            raise Exception("Metric {0} returning result with unknown format for the time serie {1}.\nResult: {2}\n".format(metric_name, str(time_serie),str(results)))
 
           if 'metric' in result and 'values' in result and len(result['values']) > 0 :
             first_value=result['values'][0][1]
@@ -90,8 +90,6 @@ def main():
         metric_count = metric_count + 1
 
     except Exception as e:
-      print("\n "+ metric_name)
-      print("Result: \n"+str(result))
       print("Exception: ")
       print(e)
       print(traceback.format_exc())
