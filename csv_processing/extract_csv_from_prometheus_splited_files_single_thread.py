@@ -90,11 +90,11 @@ def main():
         metric_count = metric_count + 1
 
     except Exception as e:
-    print("\n "+ metric_name)
-    print("Result: \n"+str(result))
-    print("Exception: ")
-    print(e)
-    print(traceback.format_exc())
+      print("\n "+ metric_name)
+      print("Result: \n"+str(result))
+      print("Exception: ")
+      print(e)
+      print(traceback.format_exc())
 
 def format_start_end_time(start, duration, time_unity):
   duration_int = int(duration) * getFormatInSeconds(time_unity)
