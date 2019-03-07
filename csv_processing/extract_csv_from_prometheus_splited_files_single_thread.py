@@ -13,6 +13,7 @@ from datetime import timedelta
 from pathlib import Path
 from functools import reduce
 import hashlib
+import traceback
 
 # code based on:
 # https://www.robustperception.io/prometheus-query-results-as-csv and
@@ -49,6 +50,7 @@ def main():
       map_file_name = "time_series_map.txt"
       map_file_name = data_folder / map_file_name
 
+      result=""
       with open(str(map_file_name), 'w') as time_series_map:
         for index, time_serie in enumerate(time_series):
           results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
@@ -56,14 +58,14 @@ def main():
           if 'result' in results and len(results['result']) > 0:
             result = results['result'][0]
           else:
-            raise Exception("result with unknown format: {0}".format(str(results)))
+            raise Exception("Metric {0} returning result with unknown format for the time serie {1}: {2}\n".format(metric_name, str(time_serie),str(results)))
 
-          if 'metric' in result and 'values' in result and len(result['values']) > 0 : 
+          if 'metric' in result and 'values' in result and len(result['values']) > 0 :
             first_value=result['values'][0][1]
             print_values=False
 
             for value in result['values']:
-              if value[1] != first_value: 
+              if value[1] != first_value:
                   print_values=True
                   break
 
@@ -85,13 +87,14 @@ def main():
                 for value in result['values']:
                   writer.writerow(value)
 
-        metric_count = metric_count + 1 
+   					except Exception as e:
+  		   			print("\n "+ metric_name)
+     					print("Result: \n"+str(result))
+		     			print("Exception: ")
+				     	print(e)
+    					print(traceback.format_exc())
 
-    except Exception as e:
-      print("\nNao foi possivel gerar "+ metric_name)
-      print("Exception: ")
-      print(e)
-
+        metric_count = metric_count + 1
 
 def format_start_end_time(start, duration, time_unity):
   duration_int = int(duration) * getFormatInSeconds(time_unity)
@@ -101,6 +104,7 @@ def format_start_end_time(start, duration, time_unity):
   end_test_date = start + timedelta(seconds=duration_int)
   start_formated = start.isoformat() + offsetFormatted
   end_formated = end_test_date.isoformat() + offsetFormatted
+
   return start_formated, end_formated
 
 def make_request(url, error_message, params={}):
@@ -108,7 +112,7 @@ def make_request(url, error_message, params={}):
   data = response.json()['data']
 
   if not response or response.status_code != requests.codes.ok or not data:
-    raise Exception(error_message + "\nURL: " + url + "\nParams: " + params + "\nReponse: " + response)
+    raise Exception(error_message + "\nURL: " + url + "\nParams: " + params + "\nReponse: " + str(response))
 
   return data
 
@@ -123,9 +127,11 @@ def request_time_serie_values(url, time_serie, start, end, step):
 
 def create_prom_query (metric_name, time_serie):
   prometheus_query = ""
+
   for label, value in time_serie.items():
     pair = label.replace("'","") + "=" + '"' + value + '"'
     prometheus_query = prometheus_query + pair + ","
+
   prometheus_query = prometheus_query[0:len(prometheus_query) - 1]
   prometheus_query = metric_name+ "{" + prometheus_query + "}"
   return prometheus_query
