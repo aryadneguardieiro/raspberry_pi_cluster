@@ -110,7 +110,7 @@ def make_request(url, error_message, params={}):
   data = response.json()['data']
 
   if not response or response.status_code != requests.codes.ok or not data:
-    raise Exception(error_message + "\nURL: " + url + "\nParams: " + str(params) + "\nReponse: " + str(response))
+    raise Exception(error_message + "\nURL: " + url + "\nParams: " + str(params) + "\nReponse: " + str(response) + "\nData: " + str(data))
 
   return data
 
