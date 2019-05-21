@@ -10,26 +10,26 @@ else
 
 	cd $directory
 
-	echo $(head -n 1 $y_name) > y_csv_file.csv;
-	echo $(head -n 1 $unified_csv) > x_csv_file.csv;
+	echo $(head -n 1 $y_name) > YFileProcessed.csv;
+	echo $(head -n 1 $unified_csv) > XFileProcessed.csv;
 
 	for t in $(tail -n +2 $unified_csv); do
 		timestamp=$(echo $t | cut -d ',' -f 1);
 		search=$(cat $y_name | grep -m 1 $timestamp);
 		if [ "$search" != "" ]; then
-			echo "$t" >> x_csv_file.csv;
-			echo "$search" >> y_csv_file.csv;
+			echo "$t" >> XFileProcessed.csv;
+			echo "$search" >> YFileProcessed.csv;
 		fi
 	done
-	qtdLinhasX=$(cat x_csv_file.csv | wc -l);
-	qtdLinhasY=$(cat y_csv_file.csv | wc -l);
+	qtdLinhasX=$(cat XFileProcessed.csv | wc -l);
+	qtdLinhasY=$(cat YFileProcessed.csv | wc -l);
 	if [ $qtdLinhasX -ne $qtdLinhasY ]; then
 		echo "Arquivos com quantidades diferentes de linhas!!!!";
 	else
 		erros=0;
 		echo "Arquivos csvs gerados com sucesso. Iniciando verificacao dos timestamps...";
-		readarray xArray < x_csv_file.csv;
-		readarray yArray < y_csv_file.csv;
+		readarray xArray < XFileProcessed.csv;
+		readarray yArray < YFileProcessed.csv;
 		for i in $(seq 2 $qtdLinhasX); do
 			xTimestamp=$(echo ${xArray[i]} | cut -d ',' -f 1);
 			yTimestamp=$(echo ${yArray[i]} | cut -d ',' -f 1);
