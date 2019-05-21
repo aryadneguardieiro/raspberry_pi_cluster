@@ -1,10 +1,14 @@
 #!/bin/bash
 
-if [ $# -ne 2 ]; then
-	echo "Usage: filter_timestamp y_file x_file";
+if [ $# -ne 3 ]; then
+	echo "Usage: filter_timestamp directory y_file x_file";
+	exit 1
 else
-	y_name="$1";
-	unified_csv="$2";
+	directory="$1"
+	y_name="$2";
+	unified_csv="$3";
+
+	cd $directory
 
 	echo $(head -n 1 $y_name) > y_csv_file.csv;
 	echo $(head -n 1 $unified_csv) > x_csv_file.csv;
@@ -39,4 +43,5 @@ else
 			echo "Verifique o arquivo log.txt";
 		fi
 	fi
+	exit 0
 fi

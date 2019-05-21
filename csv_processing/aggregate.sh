@@ -1,5 +1,14 @@
 #!/bin/bash
 
+if [ $# -ne 1 ]; then
+	echo "Usage: aggregate csv_directory"
+	exit 1
+fi
+
+directory=$1
+
+cd $directory
+
 qtdFiles=$(ls | grep csv$ | wc -l);
 
 echo "timestamp,"$(ls | grep csv$ | sed s/\.csv//g) | sed s/\ /,/g;
@@ -37,3 +46,4 @@ for t in $(tail -n +2 $file_name); do
 		echo $timestamp,$line;
 	fi
 done;
+exit 0
