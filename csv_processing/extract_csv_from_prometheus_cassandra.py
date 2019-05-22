@@ -40,7 +40,7 @@ def main():
   data_folder = Path(destination_dir_path)
   start = datetime.strptime(begin_test_day + ' ' + begin_test_hour, "%d/%m/%y %H:%M:%S")
   duration_in_sec = duration * getFormatInSeconds(time_unity)
-  start_formated, end_formated = format_start_end_time(start, duration_in_sec)
+  start_formated, end_formated = format_start_end_time(start, timedelta(seconds=duration_in_sec))
 
   map_file_name = 'time_series_map.csv'
   map_file_name = data_folder / map_file_name
@@ -102,11 +102,11 @@ def main():
         print(e)
 
 
-def format_start_end_time(start, duration_in_sec):
+def format_start_end_time(start, shift_time):
   offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
   offset = offset / (-3600)
   offsetFormatted = '.000' + convertToHourFormat(offset)
-  end_test_date = start + timedelta(seconds=duration_in_sec)
+  end_test_date = start + shift_time
   start_formated = start.isoformat() + offsetFormatted
   end_formated = end_test_date.isoformat() + offsetFormatted
   return start_formated, end_formated
@@ -129,9 +129,11 @@ def request_time_serie_values(url, time_serie, start, duration_in_sec, step):
   end = start + timedelta(seconds=duration_in_sec)
   stop = False
 
-  shift_time = int(duration_in_sec / step)
+  shift_time = timedelta(seconds=int(duration_in_sec / step))
+  one_second = timedelta(seconds=1)
+  
   while not stop:
-    end_part = start_part + step
+    end_part = start_part + shift_time
     if end_part >= end:
       end_part = end
       stop = True
@@ -142,7 +144,7 @@ def request_time_serie_values(url, time_serie, start, duration_in_sec, step):
       data = step_data
     else:
       data.append(step_data)
-    start_part = end_part + timedelta(seconds=1)
+    start_part = end_part + one_second
   
   return data
 
