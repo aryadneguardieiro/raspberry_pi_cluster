@@ -124,14 +124,16 @@ def request_time_serie_values(url, time_serie, start, duration_in_sec, step):
   endpoint = '{0}/api/v1/query_range'.format(url)
   metric_name = time_serie.pop('__name__')
   prometheus_query = create_prom_query(metric_name, time_serie)
-  data = None
+  start_formated, end_formated = format_start_end_time(start, timedelta(seconds=duration_in_sec))
+  params = {'query': prometheus_query, 'start': start_formated, 'end': end_formated}
+  data = make_request(endpoint, "It wasn't possible to retrive time serie values", params)
+  """
   start_part = start
   end = start + timedelta(seconds=duration_in_sec)
   stop = False
-
   shift_time = timedelta(seconds=int(duration_in_sec / step))
   one_second = timedelta(seconds=1)
-  
+
   while not stop:
     end_part = start_part + shift_time
     if end_part >= end:
@@ -145,7 +147,7 @@ def request_time_serie_values(url, time_serie, start, duration_in_sec, step):
     else:
       data.append(step_data)
     start_part = end_part + one_second
-  
+  """
   return data
 
 def create_prom_query (metric_name, time_serie):
