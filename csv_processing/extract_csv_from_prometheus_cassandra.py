@@ -32,10 +32,14 @@ def main():
   begin_test_hour=sys.argv[5]
   step=int(sys.argv[6])
 
+  if duration % step != 0:
+    print('Step nao divide o intervalo.')
+    exit()
+  
   create_dir(destination_dir_path)
   data_folder = Path(destination_dir_path)
   start = datetime.strptime(begin_test_day + ' ' + begin_test_hour, "%d/%m/%y %H:%M:%S")
-  start_formated, end_formated = format_start_end_time(start, duration, time_unity)
+  start_formated, end_formated, duration_in_sec = format_start_end_time(start, duration, time_unity)
 
   map_file_name = 'time_series_map.csv'
   map_file_name = data_folder / map_file_name
@@ -57,7 +61,8 @@ def main():
 
 
         for _, time_serie in enumerate(time_series):
-          results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
+
+          results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, duration_in_sec / step)
 
           if 'result' in results and len(results['result']) > 0:
             result = results['result'][0]
@@ -97,14 +102,14 @@ def main():
 
 
 def format_start_end_time(start, duration, time_unity):
-  duration_int = int(duration) * getFormatInSeconds(time_unity)
+  duration_in_sec = int(duration) * getFormatInSeconds(time_unity)
   offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
   offset = offset / (-3600)
   offsetFormatted = '.000' + convertToHourFormat(offset)
-  end_test_date = start + timedelta(seconds=duration_int)
+  end_test_date = start + timedelta(seconds=duration_in_sec)
   start_formated = start.isoformat() + offsetFormatted
   end_formated = end_test_date.isoformat() + offsetFormatted
-  return start_formated, end_formated
+  return start_formated, end_formated, duration_in_sec
 
 def make_request(url, error_message, params={}):
   response = requests.get(url, params=params, timeout=120)
@@ -119,9 +124,22 @@ def request_time_serie_values(url, time_serie, start, end, step):
   endpoint = '{0}/api/v1/query_range'.format(url)
   metric_name = time_serie.pop('__name__')
   prometheus_query = create_prom_query(metric_name, time_serie)
-  params = {'query': prometheus_query, 'start': start, 'end': end, 'step': str(step) + 's' }
-  data = make_request(endpoint, "It wasn't possible to retrive time serie values", params)
-
+  data = None
+  start_part = start
+  stop = False
+  while not stop:
+    end_part = start_part + step
+    if end_part >= end:
+      end_part = end
+      stop = True
+    params = {'query': prometheus_query, 'start': start_part, 'end': end_part}
+    step_data = make_request(endpoint, "It wasn't possible to retrive time serie values", params)
+    if not data:
+      data = step_data
+    else:
+      data.append(step_data)
+    start_part = end_part + timedelta(seconds=1)
+  
   return data
 
 def create_prom_query (metric_name, time_serie):
