@@ -40,7 +40,7 @@ def main():
   data_folder = Path(destination_dir_path)
   start = datetime.strptime(begin_test_day + ' ' + begin_test_hour, "%d/%m/%y %H:%M:%S")
   duration_in_sec = duration * getFormatInSeconds(time_unity)
-  start_formated, end_formated, _ = format_start_end_time(start, duration_in_sec)
+  start_formated, end_formated = format_start_end_time(start, duration_in_sec)
 
   map_file_name = 'time_series_map.csv'
   map_file_name = data_folder / map_file_name
