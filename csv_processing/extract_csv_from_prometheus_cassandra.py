@@ -46,7 +46,7 @@ def main():
   
   with open(str(map_file_name), 'w') as time_series_map:
     writer_file_map = csv.writer(time_series_map, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-    writer_file_map.writerow(['hash', 'metric_name'])
+    writer_file_map.writerow(['hash', 'metric_info'])
     for metric_name in metric_names:
       if metric_name not in metrics_to_get:
         continue
