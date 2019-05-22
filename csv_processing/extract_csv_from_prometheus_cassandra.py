@@ -48,10 +48,12 @@ def main():
 
       time_series = get_metric_time_series(prometheus_url, metric_name, start_formated, end_formated)
 
-      map_file_name = "time_series_map.txt"
+      map_file_name = 'time_series_map.csv'
       map_file_name = data_folder / map_file_name
 
       with open(str(map_file_name), 'w') as time_series_map:
+        writer_file_map = csv.writer(time_series_map, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+        writer_file_map.writerow(['hash', 'metric_name'])
         for index, time_serie in enumerate(time_series):
           results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, step)
 
@@ -73,10 +75,9 @@ def main():
               metric_info = str(result['metric'])
               hash_object = hashlib.sha1(metric_info.encode())
               time_serie_hash_id = hash_object.hexdigest()
-
-              writer_file_map = csv.writer(time_series_map, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-              writer_file_map.writerow([time_serie_hash_id, metric_info])
-
+              
+              writer_file_map.writerow(time_serie_hash_id + "," + metric_info)
+              
               file_name = time_serie_hash_id + '.csv'
               file_name = data_folder / file_name
 
@@ -86,7 +87,6 @@ def main():
 
                 for value in result['values']:
                   writer.writerow(value)
-
         metric_count = metric_count + 1 
 
     except Exception as e:
