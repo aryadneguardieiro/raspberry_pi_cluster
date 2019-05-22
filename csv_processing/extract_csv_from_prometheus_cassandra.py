@@ -78,7 +78,7 @@ def main():
               hash_object = hashlib.sha1(metric_info.encode())
               time_serie_hash_id = hash_object.hexdigest()
               
-              writer_file_map.writerow(time_serie_hash_id + "," + metric_info)
+              writer_file_map.writerow([time_serie_hash_id, metric_info])
               
               file_name = time_serie_hash_id + '.csv'
               file_name = data_folder / file_name
