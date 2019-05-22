@@ -18,6 +18,7 @@ import hashlib
 # https://www.robustperception.io/prometheus-query-results-as-csv and
 # https://medium.com/@aneeshputtur/export-data-from-prometheus-to-csv-b19689d780aa
 
+STEP_PROMETHEUS = '1s'
 
 def main():
   if len(sys.argv) != 7:
@@ -124,10 +125,6 @@ def request_time_serie_values(url, time_serie, start, duration_in_sec, step):
   endpoint = '{0}/api/v1/query_range'.format(url)
   metric_name = time_serie.pop('__name__')
   prometheus_query = create_prom_query(metric_name, time_serie)
-  start_formated, end_formated = format_start_end_time(start, timedelta(seconds=duration_in_sec))
-  params = {'query': prometheus_query, 'start': start_formated, 'end': end_formated}
-  data = make_request(endpoint, "It wasn't possible to retrive time serie values", params)
-  """
   start_part = start
   end = start + timedelta(seconds=duration_in_sec)
   stop = False
@@ -140,14 +137,13 @@ def request_time_serie_values(url, time_serie, start, duration_in_sec, step):
       end_part = end
       stop = True
     start_part_formated, end_part_formated = format_start_end_time(start_part, shift_time)
-    params = {'query': prometheus_query, 'start': start_part_formated, 'end': end_part_formated}
+    params = {'query': prometheus_query, 'start': start_part_formated, 'end': end_part_formated, 'step' : STEP_PROMETHEUS}
     step_data = make_request(endpoint, "It wasn't possible to retrive time serie values", params)
     if not data:
       data = step_data
     else:
       data.append(step_data)
     start_part = end_part + one_second
-  """
   return data
 
 def create_prom_query (metric_name, time_serie):
