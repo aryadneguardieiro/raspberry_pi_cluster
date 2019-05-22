@@ -25,7 +25,7 @@ def main():
     sys.exit(1)
 
   prometheus_url = sys.argv[1]
-  duration=sys.argv[2][:-1]
+  duration=int(sys.argv[2][:-1])
   time_unity = sys.argv[2][-1]
   destination_dir_path=sys.argv[3]
   begin_test_day = sys.argv[4]
@@ -102,7 +102,7 @@ def main():
 
 
 def format_start_end_time(start, duration, time_unity):
-  duration_in_sec = int(duration) * getFormatInSeconds(time_unity)
+  duration_in_sec = duration * getFormatInSeconds(time_unity)
   offset = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
   offset = offset / (-3600)
   offsetFormatted = '.000' + convertToHourFormat(offset)
