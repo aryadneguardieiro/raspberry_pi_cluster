@@ -62,7 +62,7 @@ def main():
 
         for _, time_serie in enumerate(time_series):
 
-          results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, timedelta(seconds=(int(duration_in_sec / step)))
+          results = request_time_serie_values(prometheus_url, time_serie, start_formated, end_formated, timedelta(seconds=int(duration_in_sec / step)))
 
           if 'result' in results and len(results['result']) > 0:
             result = results['result'][0]
