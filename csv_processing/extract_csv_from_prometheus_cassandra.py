@@ -130,7 +130,8 @@ def request_time_serie_values(url, time_serie, start, duration_in_sec, step):
   stop = False
   shift_time = timedelta(seconds=int(duration_in_sec / step))
   one_second = timedelta(seconds=1)
-
+  data = None
+  
   while not stop:
     end_part = start_part + shift_time
     if end_part >= end:
