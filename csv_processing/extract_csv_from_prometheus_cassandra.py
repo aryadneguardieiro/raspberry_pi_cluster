@@ -143,7 +143,7 @@ def request_time_serie_values(url, time_serie, start, duration_in_sec, step):
     if not data:
       data = step_data
     else:
-      data.append(step_data)
+      data.update(step_data)
     start_part = end_part + one_second
   return data
 
