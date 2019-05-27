@@ -84,9 +84,9 @@ def main():
               metric_info = str(result['metric'])
               hash_object = hashlib.sha1(metric_info.encode())
               time_serie_hash_id = hash_object.hexdigest()
-              
+
               writer_file_map.writerow([time_serie_hash_id, metric_name, metric_info])
-              
+
               file_name = time_serie_hash_id + '.csv'
               file_name = data_folder / file_name
 
@@ -114,6 +114,7 @@ def format_start_end_time(start, shift_time):
 
 def make_request(url, error_message, params={}):
   response = requests.get(url, params=params, timeout=120)
+
   data = response.json()['data']
 
   if not response or response.status_code != requests.codes.ok or not data:
@@ -143,7 +144,8 @@ def request_time_serie_values(url, time_serie, start, duration_in_sec, step):
     if not data:
       data = step_data
     else:
-      data.update(step_data)
+      pdb.set_trace()
+      data['result'][0]['values'] = data['result'][0]['values'] + step_data['result'][0]['values']
     start_part = end_part + one_second
   return data
 
