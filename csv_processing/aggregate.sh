@@ -39,6 +39,8 @@ for t in $(tail -n +2 $file_name); do
 			else
 				line="$line,${brokenLine[1]}";
 			fi
+		else
+			break
 		fi
 	done
 
