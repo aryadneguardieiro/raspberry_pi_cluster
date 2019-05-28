@@ -11,7 +11,7 @@ cd $directory
 
 qtdFiles=$(ls | grep csv$ | wc -l);
 
-echo "timestamp,"$(ls | grep csv$ | sed s/\.csv//g) | sed s/\ /,/g;
+echo "timestamp,"$(ls | grep csv$ | sort | sed s/\.csv//g) | sed s/\ /,/g;
 
 #escolhe um arquivo para comecar
 file_name=$(ls | grep csv$ | head -1);
@@ -22,30 +22,12 @@ file_name=$(ls | grep csv$ | head -1);
 for t in $(tail -n +2 $file_name); do
 	#pega o timestamp
 	timestamp=$(echo $t | cut -d ',' -f 1);
-
-	qtd=0;
-	line="";
-	for file in $(ls | grep csv$); do
-		hasTimestamp=$(cat $file | grep -m 1 $timestamp | sed s/\\r//g);
-		if [ "$hasTimestamp" != "" ]; then
-			qtd=$((qtd+1));
-			OLDIFS="$IFS";
-			IFS=",";
-			brokenLine=($hasTimestamp);
-			IFS="$OLDIFS";
-
-			if [ "$line" == "" ]; then
-				line=${brokenLine[1]};
-			else
-				line="$line,${brokenLine[1]}";
-			fi
-		else
-			break
-		fi
-	done
+	grep -r "^$timestamp" > /tmp/grepXFiles
+	qtd=$(cat /tmp/grepXFiles | wc -l);
 
 	if [ $qtd -eq $qtdFiles ]; then
-		echo $timestamp,$line;
+		echo $timestamp,$(cat /tmp/grepXFiles | sort | cut -d ':' -f 2 | cut -d ',' -f 2 | sed s/\\r//g) | sed s/' '/,/g;
 	fi
 done;
+rm /tmp/grepXFiles
 exit 0
