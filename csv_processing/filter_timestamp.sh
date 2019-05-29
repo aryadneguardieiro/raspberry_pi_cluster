@@ -7,7 +7,7 @@ else
 	directory="$1"
 	y_name="$2";
 	unified_csv="$3";
-        currentTS = "$4";
+        currentTS="$4";
 
 	cd $directory
 
