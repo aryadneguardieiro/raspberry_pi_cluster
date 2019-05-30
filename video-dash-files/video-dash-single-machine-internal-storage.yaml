@@ -37,7 +37,7 @@ spec:
       - name: self-video-storage
         hostPath:
           # directory location on host
-          path: "/home/cloud/videos"
+          path: /home/cloud/videos
           # this field is optional
           type: Directory
 

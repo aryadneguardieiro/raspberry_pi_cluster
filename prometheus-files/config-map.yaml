@@ -168,3 +168,7 @@ data:
           target_label: kubernetes_namespace
         - source_labels: [__meta_kubernetes_ingress_name]
           target_label: kubernetes_name
+
+      - job_name: 'node'
+        static_configs:
+        - targets: ['192.168.0.107:9100', '192.168.0.108:9100', '192.168.0.109:9100', '192.168.0.113:9100', '192.168.0.116:9100'] #se adicionar mais ip's, separar por virgula dentro dos colchetes
