@@ -1,0 +1,25 @@
+#!/bin/bash
+
+if [ "$EUID" -ne "0" ]; then
+	echo "Please, run this script as sudo. Thanks!!";
+	exit 1;
+fi
+
+./docker_install/install_docker;
+
+if [ "$?" -eq "0" ]; then
+	apt-get update;
+	if [ "$?" -eq "0" ]; then
+		apt-get install -y kubeadm;
+		if [ "$?" -eq "0" ]; then
+			echo "Everything's fine. Docker and Kubenertes installed successfuly."
+			exit 0;
+		else
+			echo "Failed to install kubeadm";
+		fi
+	else
+		echo "Failed to run apt-get update";
+	fi
+else
+	echo "Failed to install docker."
+fi
