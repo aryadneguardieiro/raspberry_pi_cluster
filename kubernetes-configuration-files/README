@@ -1,0 +1,2 @@
+Para instalar o docker e o kubeadm: Rode o script config_k8s como sudo
+Para iniciar um cluster kubernetes: Rode "kubectl apply -f ./kubeadm-config.yaml"
