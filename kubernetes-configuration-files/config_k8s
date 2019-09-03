@@ -5,7 +5,7 @@ if [ "$EUID" -ne "0" ]; then
 	exit 1;
 fi
 
-./docker_install/install_docker;
+./docker-install-vm/install-docker;
 
 if [ "$?" -eq "0" ]; then
 	apt-get update;
