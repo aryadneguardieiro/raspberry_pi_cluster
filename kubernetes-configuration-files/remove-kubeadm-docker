@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if [ "$EUID" -ne "0" ]; then
+	echo "Please, run this script as sudo. Thanks!!";
+	exit 1;
+fi
+
+apt-get remove kubeadm kubelet kubectl docker;
+if [ $? -eq 0 ]; then
+	apt-get purge docker-ce
+	if [ $? -eq 0 ]; then
+		rm -rf /var/lib/docker
+		if [ $? -eq 0 ]; then
+			apt-get autoremove
+			if [ $? -eq 0 ]; then
+				echo "Everything's fine.";
+			else
+				echo "Error on apt-get autoremove. Check it!";
+			fi
+		else
+			echo "Failed to remove /var/lib/docker. Check it!";
+		fi
+	else
+		echo "Failed to purge docker-ce. Check it!!";
+	fi
+else
+	echo "Failed to remove kubeadm or kubelet or kubectl or docker. Check it!!";
+fi
+
+
