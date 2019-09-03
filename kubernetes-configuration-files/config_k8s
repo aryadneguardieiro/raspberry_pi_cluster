@@ -8,6 +8,7 @@ fi
 ./docker-install-vm/install-docker;
 
 if [ "$?" -eq "0" ]; then
+	echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list;
 	apt-get update;
 	if [ "$?" -eq "0" ]; then
 		apt-get install -y kubeadm;
