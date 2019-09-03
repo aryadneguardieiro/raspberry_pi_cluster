@@ -12,6 +12,7 @@ if [ "$?" -eq "0" ]; then
 	if [ "$?" -eq "0" ]; then
 		apt-get install -y kubeadm;
 		if [ "$?" -eq "0" ]; then
+			kubeadm reset -f;
 			echo "Everything's fine. Docker and Kubenertes installed successfuly."
 			exit 0;
 		else
