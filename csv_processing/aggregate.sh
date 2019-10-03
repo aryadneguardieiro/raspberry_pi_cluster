@@ -5,6 +5,8 @@ if [ $# -ne 1 ]; then
 	exit 1
 fi
 
+timeinsec=$(date +%s)
+
 directory=$1
 
 cd $directory
@@ -19,15 +21,13 @@ file_name=$(ls | grep csv$ | head -1);
 
 #percorre as linhas do arquivo escolhido, vendo quais timestamps presentes neste arquivo também estão em todos os outros
 #os timestamps que nao pertencerem a este arquivo ou que nao estiverem presentes em todos os demais serão excluidos
-for t in $(tail -n +2 $file_name); do
-	#pega o timestamp
-	timestamp=$(echo $t | cut -d ',' -f 1);
-	grep -r "^$timestamp" > /tmp/grepXFiles
-	qtd=$(cat /tmp/grepXFiles | wc -l);
+for timestamp in $(tail -n +2 $file_name | cut -d',' -f1); do
+	grep -r "^$timestamp" > /tmp/grepXFiles$timeinsec
+	qtd=$(cat /tmp/grepXFiles$timeinsec | wc -l);
 
 	if [ $qtd -eq $qtdFiles ]; then
-		echo $timestamp,$(cat /tmp/grepXFiles | sort | cut -d ':' -f 2 | cut -d ',' -f 2 | sed s/\\r//g) | sed s/' '/,/g;
+		echo $timestamp,$(cat /tmp/grepXFiles$timeinsec | sort | cut -d ',' -f 2 | sed s/\\r//g) | sed s/' '/,/g;
 	fi
 done;
-rm /tmp/grepXFiles
+rm /tmp/grepXFiles$timeinsec
 exit 0
