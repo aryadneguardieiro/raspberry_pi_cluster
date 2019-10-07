@@ -1,0 +1,70 @@
+#!/bin/bash
+
+if [ $# -le 2 ]; then
+	echo "Usage: split_file y_file timestamp1 timestamp2 ... (at least two)"
+	exit 1
+fi
+
+y_file=$1
+
+filesBuilt=()
+
+if [[ $y_file == *csv ]]; then
+
+	filename=$(echo $y_file | cut -d'.' -f1)
+	header=$(head -1 $y_file)
+	shift
+	OLDIFS=$IFS
+	IFS=' '
+	timestamps=($(echo "$@" | tr ' ' '\n' | sort | tr '\n' ' '))
+
+	lastPos=$((${#timestamps[@]}-1))
+	addLine=0
+	for (( i=0; i<$lastPos; i++)); do
+		if [ $i -ge 1 ]; then
+			addLine=1;
+		fi
+		tsLine=$(grep -n "^${timestamps[$i]}," $y_file)
+		if [ $? -eq 0 ]; then
+			x=$(echo $tsLine | cut -d':' -f1)
+			x=$(($x+$addLine))
+			j=$(($i+1))
+			tsLine=$(grep -n "^${timestamps[$j]}," $y_file)
+			if [ $? -eq 0 ]; then
+				y=$(echo $tsLine | cut -d':' -f1)
+				if (( $y < $x )); then
+					echo "${timestamps[$j]} is equal ${timestamps[$i]}, so " "$filename""_part$j.csv is not generated. Skipping to next ones if exists."
+				else
+					fileToBuild="$filename"_part$j.csv
+					echo $header > "$fileToBuild"
+					echo $(head -n $y $y_file | tail -n +$x) >> "$fileToBuild"
+					filesBuilt[$i]=$fileToBuild
+				fi
+			else
+				echo "Couldn't find: ${timestamps[$j]} in file: $y_file. Removing all files created.";
+				rm "${filesBuilt[@]}"
+				if [ $? -eq 0 ]; then
+					echo "Exiting with status 2."
+					exit 2;
+				else
+					echo "Couldn't delete files. Check it. Exiting with status 3."
+					exit 3;
+				fi
+			fi
+		else
+			echo "Couldn't find: ${timestamps[$j]} in file: $y_file. Removing all files created.";
+			rm "${filesBuilt[@]}"
+			if [ $? -eq 0 ]; then
+				echo "Exiting with status 2."
+				exit 2;
+			else
+				echo "Couldn't delete files. Check it. Exiting with status 3."
+				exit 3;
+			fi
+		fi
+	done
+	IFS=$OLDIFS
+else
+	echo "$y_file is not csv extension. Script not prepared. Exiting with status 4"
+	exit 4
+fi
